@@ -13,6 +13,8 @@ Redis的类型分为string、hash、list、set、sorted_set六种基本类型。
 **sorted_set**：类似set数据类型，但sorted_set类型可以保存可排序数据。底层存储在set的基础上添加了可排序字段score.
 ![sorted_set底层存储结构](img/sorted_set底层存储结构.png)
 其中score是用于排序，不是数据
+
+-------------------------------------
 # 2 string类型
 string是Redis中的数据格式之一。是通过key-value的方式存储的。
 ## 2.2 string的操作命令
@@ -110,6 +112,7 @@ _示例_:
 <font color=Gray>append命令的输出(integer) 9表示追加字符后新的字符的长度（字节）。</font>
 ![append命令示例_1](img/append命令示例_1.png)
 
+---------------------------------------------
 # 3 Hash类型
 ![hash底层存储结构](img/hash底层存储结构.png)
 ## 3.1 Hash操作命令
@@ -285,6 +288,7 @@ hash类型的key对应的不是一个value, 而是一个数据结构。即一个
 - hash类型十分贴近对象的数据存储形式，并且灵活添加/删除对象的属性。但hash的设计之初并不是为了存储大量对象而设计的，切记不可来滥用，更不可将hash作为对象列表使用。
 - hgetall命令可以获取hash key的全部filed, 如果内部的filed过多，遍历整体数据效率就会很低，有可能成为数据访问瓶颈。
 
+-----------------------------------------------
 # 4 List类型
 ## 4.1 list类型操作命令
 ### 4.1.1 添加list数据
@@ -460,6 +464,7 @@ linsert key before|after pivot value
 存储列表信息，一个key中可以存储多个value，通过数据可以体现数据的先后顺序，底层使用双向链表实现。
 ![list底层存储结构](img/list底层存储结构.png)
 
+-------------------------------------------------
 # 5 Set类型
 ## set操作命令
 ### 5.1.1 向set中添加数据
@@ -610,6 +615,7 @@ sdiffstore dest key1 key2 key3 ...
 **示例**：
 ![sdiff命令sdiffstore命令示例_1](img/sdiffstore命令示例_1.png)
 
+------------------------------------------
 ### 5.1.10 移动set元素到另一个set
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -627,6 +633,7 @@ smove source dest member
 - set类型不允许数据重复，如果添加的数据在set中已经存在，则只保留一份。
 - set虽然于hash的存储结构相同，但无法启用hash中存储值的空间。
 
+-----------------------------------------------
 # 6 sorted_set类型
 sorted_set类型是在set类型的基础上为每个member添加了score字段，用于对member进行排序。
 ## 6.1 sorted_setl类型操作命令
@@ -710,6 +717,7 @@ zrevrangebyscore key max min [withscores] [limit offset count]
 因为exam中满足score在[130,100]的数据有3个，按**降序**排列为(math(130),chinese(120),english(110)), 偏移为0的是math, 最多取1个member，因此输出结果为(math(130))).</font>
 ![zrevrangebyscore命令示例_1](img/zrevrangebyscore命令示例_1.png)
 
+
 ### 6.1.3 删除sorted_set成员
 **根据sorted_set中的元素删除**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -759,7 +767,6 @@ zcard key
 ```
 </td></tr></table>
 
-c
 
 **获取sorted_set中指定score区间的元素的个数**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -783,3 +790,70 @@ zinterstore dest numkeys key1 key2 ...
 </td></tr></table>
 
 **示例**：
+<font color=Gray>求test与exam的交集，并将score相加</font>
+![zinterstore命令示例_1](img/zinterstore命令示例_1.png)
+
+<font color=Gray>如果在zinterstore命令中添加**aggregate max**可以在进行合并时，score取最大值</font>
+![zinterstore命令示例_2](img/zinterstore命令示例_2.png)
+
+<font color=Gray>如果在zinterstore命令中添加**aggregate min**可以在进行合并时，score取最大值</font>
+![zinterstore命令示例_3](img/zinterstore命令示例_3.png)
+
+### 6.1.6 获取数据对应的索引
+**以score的升序排列，获取指定成员的索引**
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 获取member对应的所以，(获取排名)。如果不存在成员则返回(nil)
+zrank key member
+```
+</tr></td></table>
+
+**示例**：
+<font color=Gray>获取到math的索引为1</font>
+![zrank命令示例_1](img/zrank命令示例_1.png)
+
+**以score的升序排列，获取指定成员的索引**
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 获取member对应的所以，(获取排名)。如果不存在成员则返回(nil)
+zrevrank key member
+```
+</tr></td></table>
+
+**示例**：
+<font color=Gray>以降序排列，获取到math的索引为0</font>
+![zrevrank命令示例_1](img/zrevrank命令示例_1.png)
+
+### 6.1.7 sorted_set成员score值的获取
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 获取member的score值，如果member不存在则返回(nil)
+zscore key member
+```
+</td></tr></table>
+
+**示例**:
+![zscore命令示例_1](img/zscore命令示例_1.png)
+![zscore命令示例_2](img/zscore命令示例_2.png)
+
+### 6.1.8 sorted_set的成员的score值修改
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 将key的member成员的score增加incremement, incremement可以为负数--表示减少
+zincrby key incremement member
+```
+</td></tr></table>
+
+**示例**：
+<font color=Gray>将exam的math的score增加12</font>
+![zincrby命令示例_1](img/zincrby命令示例_1.png)
+
+## 6.2 sorted_set使用的注意事项
+- scor保存的数据空间是64位，如果是整数，则对应范围是-9007199254740992~9007199254740992
+- score保存的数据也可以是一个双精度的double值，基于双精度浮点数的特征，可能会丢失精度，使用时需要谨慎
+  ![double_score_1](img/double_score_1.png)
+- sorted_set底层存储还是基于set结构的，因此数据不能重复，如果添加相同数据，score值将会反复被覆盖，保留最后一次修改的结果。
