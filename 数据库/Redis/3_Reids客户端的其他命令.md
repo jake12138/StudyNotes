@@ -108,6 +108,8 @@ dbsize
 
 ## 1.9 清空所有key
 **清空当前db的所有key**
+<table><tr><td bgcolor="#87CEFA"></br>
+
 ```shell
 # 清空当前db的所有key
 flushdb
@@ -126,3 +128,28 @@ flushall
 
 **示例**：
 ![flushall命令示例_1](img/flushall命令示例_1.png)
+
+# 2 Redis功能性命令
+## 2.1 清屏
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 清屏
+clear
+```
+</td></tr></table>
+
+## 2.2 帮助命令
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 查看对应命令的用法
+help <命令名称>
+
+# 查看对应组名下的命令有哪些。
+# 组名包含 string、
+help @组名
+```
+</td></tr></table>
+
+

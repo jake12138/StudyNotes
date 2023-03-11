@@ -20,7 +20,7 @@ string是Redis中的数据格式之一。是通过key-value的方式存储的。
 ## 2.2 string的操作命令
 ### 2.2.1 添加/修改数据
 **添加/修改单个数据**
-<table><tr><td bgcolor="87CEFA"></br>
+<table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
 set key value
@@ -857,3 +857,20 @@ zincrby key incremement member
 - score保存的数据也可以是一个双精度的double值，基于双精度浮点数的特征，可能会丢失精度，使用时需要谨慎
   ![double_score_1](img/double_score_1.png)
 - sorted_set底层存储还是基于set结构的，因此数据不能重复，如果添加相同数据，score值将会反复被覆盖，保留最后一次修改的结果。
+
+# 7 单数据操作和多数据操作
+我们在对数据进行操作的时候，会遇到单数据操作和多数据操作。像对string类型的set和mset。它们的区别就是set命令只能设置一对string类型的key-value，而mset可以设置多对key-value的组合。
+```shell
+set key value
+mset key1 value1 key2 value2 ...
+```
+对于像这样的单数据操作和多数据操作之间如何做选择，可以从效率的角度来思考。
+首先我们来看一下一条指令是如何从redis客户端传输到redis服务端执行的。
+![redis指令执行过程_2](img/redis指令执行过程_2.png)
+1. Redis客户端发送指令到Redis服务器。
+2. Reids服务执行命令。
+3. Redis服务器将执行结果发送回Redi客户端。</br>
+
+这3个步骤都会消耗时间，如果是3条指令以单指令的方式执行，那么指令在发送到Redis服务器和返回的步骤会执行3x2=6次，执行次数3次。
+如果这3条指令以多指令发送，那么3条指令的往返次数就是2次. 执行次数3次。
+这样看来似乎是多指令效率更高，但虽然多指令下数据传输的次数变少了，但数据量也变大了，单次传输的时间会更长。因此使用单指令还是多指令需要权衡指令量与传输时长的关系。一般要set的数据多的话用多指令更好，数据量较少使用单指令。
