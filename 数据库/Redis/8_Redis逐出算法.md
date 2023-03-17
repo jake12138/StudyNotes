@@ -7,7 +7,7 @@
     ```
 ## 1.1 逐出算法的过程
 1. 当需要逐出一些数据时，会从数据库中挑选若干条数据用于检测，看是否需要将其临时删除。
-2. 检测这些待删除数据需要使用一定的策略来检测是否需要删除。检测的策略包含：不同类型数据有不同的淘汰策略
+2. 检测这些待删除数据需要使用一定的策略来检测是否需要删除。检测的策略包含：
    - 对检测易失性数据（可能会过期的数据集server.db[i].expires）
     (1) <font color=blue>volatile-lru</font>: 挑选最久没有使用的数据淘汰（least recentlu used）
     (2) <font color=blue>volatile-lfu</font>：挑选使用次数最少的数据淘汰(least frequently used)

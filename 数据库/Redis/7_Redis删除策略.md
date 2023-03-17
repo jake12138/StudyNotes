@@ -1,5 +1,5 @@
 # 1 背景
-Redis诗古一种内存级数据库，所有数据均存放在内存中，内存中的数据可以通过TTL指令获取其状态。
+Redis是一种内存级数据库，所有数据均存放在内存中，内存中的数据可以通过TTL指令获取其状态。
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
@@ -61,7 +61,7 @@ ttl key
     hz 10                        
     ```
     </td></tr></table>
-2. 每秒钟会执行<font color=red>serverCron()</font>函数,这个函数是对服务器的expire数据区进行轮询。<font color=red>serverCron() -> databasesCron() -> activeExpireCycle()</font>
+2. 每秒钟会执行server.hz次<font color=red>serverCron()</font>函数,这个函数是对服务器的expire数据区进行轮询。<font color=red>serverCron() -> databasesCron() -> activeExpireCycle()</font>
 3. <font color=red>serverCron()</font>中会执行<font color=red>databaseCron()</font>来对16个数据库依次进行访问。
 4. 在<font color=red>databaseCron()</font>中会执行一个<font color=red>activeExpireCycle()</font>函数来对每一个expire[*]逐一进行检测，每次执行250ms / server.hz长度的时间。
 检测时会<font color=red>随机</font>挑选W个key进行检测是否过期.

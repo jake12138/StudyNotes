@@ -22,8 +22,18 @@ getbit key offset
 ```
 </td></tr></table>
 
-**示例**：
-![Bitmaps_1](img/Bitmaps_1.png)
+**示例**：</br>
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> set name jake</br>
+OK</br>
+127.0.0.1:6379> getbit name 0</br>
+(integer) 0</br>
+127.0.0.1:6379> getbit name 1</br>
+(integer) 1</br>
+</font>
+</td></tr></table>
+
 **注意**：
 1. 如果在超出key的长度的offset取值，也会获取为0. 即在一个bit长度为10的key1中，即使执行```getbit key1 100```也会返回0.
 
@@ -38,7 +48,15 @@ setbit key value
 
 **示例**：
 将bitInfo的第0位设置为1
-![Bitmaps_2](img/Bitmaps_2.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> setbit data 0 1</br>
+(integer) 0</br>
+127.0.0.1:6379> getbit data 0</br>
+(integer) 1</br>
+</font>
+</td></tr></table>
+
 **注意**:
 1. 如果对于一个key的很大的offset上设置了值，也会设置成功，但offset之前的值会自动补充为0. 例如执行```set bits 99999 1```,会在bits的99999索引位设置位1，索引为99999之前的位自动设置位0. 
 对此，如果我们需要设置的索引位很长的话，建议先将索引减去一个固定的值在添加到Bitmaps中。
@@ -176,7 +194,17 @@ geopos key member1 member2...
 </td></tr></table>
 
 **示例**：
-![GEO_1](img/GEO_1.png)
+<table><tr><td bgcolor=Black>
+<font color=white>
+127.0.0.1:6379> geoadd map 12.4 22.1 pos1 -1.3 56 pos2</br>
+(integer) 2</br>
+127.0.0.1:6379> geopos map pos1 pos2</br>
+1) 1) "12.39999979734420776"</br>
+&emsp;2) "22.09999932656907617"</br>
+1) 1) "-1.2999996542930603"</br>
+&emsp;2) "55.9999988613003552"</br>
+</font>
+</td></tr></table>
 
 ### 4.1.2 计算坐标点的距离
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -190,7 +218,15 @@ geodist key member1 member2 [unit]
 </td></tr></table>
 
 **示例**：
-![GEO_2](img/GEO_2.png)
+<table><tr><td bgcolor=Black>
+<font color=white>
+127.0.0.1:6379> geodist map pos1 pos2</br>
+"3935828.1157"</br>
+127.0.0.1:6379> geodist map pos1 pos2 km</br>
+"3935.8281"</br>
+127.0.0.1:6379> geodist map pos1 pos2 ft</br>
+</font>
+</td></tr></table>
 
 ### 4.1.3 求范围内的点的信息
 **根据坐标求范围内的数据**
@@ -205,8 +241,17 @@ georadius key longitude latitude redius m|km|ft|mi [withdist] [withhash] [count 
 </td></tr></table>
 
 **示例**：
-![GEO_3](img/GEO_3.png)
-![GEO_4](img/GEO_4.png)
+<table><tr><td bgcolor=Black>
+<font color=white>
+127.0.0.1:6379> georadius map 0.0 1.2 3000 km withdist</br>
+1) 1) "pos1"</br>
+&emsp; 2) "2684.2777"</br>
+127.0.0.1:6379> georadius map 0.0 1.2 3000 km withdist withhash</br>
+1) 1) "pos1"</br>
+&emsp; 2) "2684.2777"</br>
+&emsp; 3) (integer) 3456981065411951</br>
+</font>
+</td></tr></table>
 
 **根据点求范围内的数据**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -243,14 +288,5 @@ geohash key member1 member2...
 127.0.0.1:6379> geohash map pos1 pos2</br>
 1) "wezterptb40"</br>
 2) "s067by61mk0"</br>
-</font>
-</td></td><table>
-
------
-<table><tr><td bgcolor=Black>
-<font color=white>
-</br>
-</br>
-</br>
 </font>
 </td></td><table>
