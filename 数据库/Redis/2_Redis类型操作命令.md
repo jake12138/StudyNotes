@@ -33,8 +33,16 @@ _示例_：
 set name jake # 设置name的值为jake
 ```
 _结果_：
-![set命令示例_1](img/set命令示例_1.png)
-![set命令示例_1](img/set命令示例_2.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> set name jake</br>
+OK</br>
+127.0.0.1:6379> set age 25</br>
+OK</br>
+</font>
+</td></tr></table>
+
+
 **添加/修改多个数据**
 <table><tr><td bgcolor="87CEFA"></br>
 
@@ -44,7 +52,13 @@ mset key1 value1 key2 value2 ...
 </td></tr></table>
 
 _示例_：
-![mset命令示例_1](img/mset命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> mset SongName ConfessionBallon signer JayChou</br>
+OK</br>
+</font>
+</td></tr></table>
+
 ### 2.2.2 获取数据
 **获取单个数据**
 <table><tr><td bgcolor="87CEFA"></br>
@@ -60,8 +74,16 @@ _示例_：
 get name # 获取name对应的值
 ```
 _结果_：
-![get命令示例_1](img/get命令示例_1.png)
-![get命令示例_1](img/get命令示例_2.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> get name </br>
+"jake"</br>
+127.0.0.1:6379> get apple</br>
+(nil)</br>
+</font>
+</td></tr></table>
+
+
 **获取多个数据**
 <table><tr><td bgcolor="87CEFA"></br>
 
@@ -71,7 +93,13 @@ mget key1 key2 key3 ...
 </td></tr></table>
 
 _示例_：
-![mget命令示例](img/mget命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> mget SongName singer</br>
+&nbsp 1) "ConfessionBallon"</br>
+&nbsp 2) "JayChou"</br>
+</font>
+</td></tr></table>
 ### 2.2.3 删除数据
 <table><tr><td bgcolor="87CEFA"></br>
 
@@ -84,7 +112,12 @@ del key # 删除string类型key对应的value
 _示例_：
 <font color=Gray>返回的(integer)2说明成功删除了2个key, 如果输出的是(integer)0说明没有删除任何key(一般是没有对应的key)</font>
 
-![del命令示例_1](img/del命令示例_2.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> del name age</br>
+(integer) 2</br>
+</font>
+</td></tr></table>
 
 ### 2.2.4 获取数据字符个数
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -95,10 +128,21 @@ strlen key # 获取key对应的字符串长度
 </td></tr></table>
 
 _示例_：
-<font color=Gray>一个ASCCI码的长度算1。<font>
-![strlen命令示例_1](img/strlen命令示例_1.png)
-<font color=Gray>对于中文，一个字3字节。</font>
-![strlen命令示例_2](img/strlen命令示例_2.png)
+<font color=Gray>一个ASCCI码的长度算1。对于中文，一个字3字节。<font>
+
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> get SongName</br>
+"ConfessionBallon"</br>
+127.0.0.1:6379> strlen SongName</br>
+(integer) 16</br>
+127.0.0.1:6379> set singer 周杰伦</br>
+OK</br>
+127.0.0.1:6379> strlen singer</br>
+(integer) 9</br>
+</font>
+</td></tr></table>
+
 ### 2.2.5 追加信息到原始值后面
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -110,7 +154,16 @@ append key value # 将value添加到原本key的值的后面
 
 _示例_:
 <font color=Gray>append命令的输出(integer) 9表示追加字符后新的字符的长度（字节）。</font>
-![append命令示例_1](img/append命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> get SongName</br>
+"ConfessionBallon"</br>
+127.0.0.1:6379> append SongName " Key"</br>
+(integer) 20</br>
+127.0.0.1:6379> get SongName</br>
+"ConfessionBallon Key"</br>
+</font>
+</td></tr></table>
 
 ---------------------------------------------
 # 3 Hash类型
@@ -126,7 +179,14 @@ hset key field value # 设置/添加key中的field字段为value
 </td></tr></table>
 
 _示例_:
-![hset命令示例_1](img/hset命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hset poseron name terry</br>
+(integer) 1</br>
+127.0.0.1:6379> hset person age 24</br>
+(integer) 1</br>
+</font>
+</td></tr></table>
 
 **添加/修改hash多个filed数据**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -138,8 +198,13 @@ hmset key filed1 value1 filed2 value2...
 </td></tr></table>
 
 _示例_
-<font color=Gray>设置person1的name字段为terry, age字段为24</font>
-![hmset命令示例_1](img/hmset命令示例_1.png)
+<font color=Gray>设置person的name字段为jake, age字段为25</font>
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hmset person name jake age 25</br>
+OK</br>
+</font>
+</td></tr></table>
 
 ### 3.1.2 获取数据
 **获取hash的单个filed数据**
@@ -151,7 +216,14 @@ hget key filed # 获取hash key的filed字段的值
 </td></tr></table>
 
 _示例_:
-![hget命令示例_1](img/hget命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hget person name</br>
+"jake"</br>
+127.0.0.1:6379> hget person age</br>
+"25"</br>
+</font>
+</td></tr></table>
 
 **获取hash的全部filed数据**
 <table><tr><td bgcolor="87CEFA"></br>
@@ -162,7 +234,15 @@ hgetall key # 获取hash的key的全部filed信息
 </td></tr></table>
 
 _示例_：
-![hgetall命令示例_1](img/hgetall命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hgetall person</br>
+1) "age"</br>
+2) "25"</br>
+3) "name"</br>
+4) "jake"</br>
+</font>
+</td></tr></table>
 
 **获取hash指定的多个filed数据**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -174,8 +254,14 @@ hmget key filed1 filed2 ...
 </td></tr></table>
 
 _示例_：
-获取hash person1下的age和name字段的值
-![hmget命令示例_1](img/hmget命令示例_1.png)
+获取hash person下的name和age字段的值
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hmget person name age</br>
+1) "jake"</br>
+2) "25"</br>
+</font>
+</td></tr></table>
 
 **仅添加不存在的hash filed信息，filed存在则不添加**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -189,7 +275,20 @@ hsetnx key filed value
 _示例_：
 <font color=Gray>如果执行成功会输出"(integer) 1", 执行失败会输出
 "(integer) 0". 示例中线设置name字段，但因为name字段已经存在，所以会执行失败。后面设置email字段成功</font>
-![hsetnx命令示例_1](img/hsetnx命令示例_1.png)
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hget person name</br>
+"jake"</br>
+127.0.0.1:6379> hsetnx person name terry</br>
+(integer) 0</br>
+127.0.0.1:6379> hsetnx person email 123@jake.com</br>
+(integer) 1</br>
+127.0.0.1:6379> hget person name</br>
+"jake"</br>
+127.0.0.1:6379> hget person email</br>
+"123@jake.com"</br>
+</font>
+</td></tr></table>
 
 ### 3.1.3 删除hash数据
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -201,7 +300,14 @@ hdel key filed1 filed2 ...
 </td></tr></table>
 
 _示例_：
-![hdel命令示例_1](img/hdel命令示例_1.png)
+返回的数字是成功删除的字段的个数, 由于person中没有sex字段，因此只删除了age，email字段两个字段。
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hdel person age email sex</br>
+(integer) 2</br>
+</font>
+</td></tr></table>
+
 ### 3.1.4 获取hash表中字段的数量
 <table><tr><td bgcolor="#87CEFA"></br>
 
