@@ -599,8 +599,8 @@ repl-ping-replica-period seconds
   ```
 
 
-# 主从复制相关的配置汇总
-## master配置
+# 2.7 主从复制相关的配置汇总
+## 2.7.1 master配置
 ```shell
 # master设置密码
 requirepass <password>
@@ -622,7 +622,7 @@ repl-timeout 60
 repl-ping-slave-period seconds
 ```
 
-## slave配置
+## 2.7.2 slave配置
 ```shell
 # slave通过配置文件来设置访问master的密码
 masterauth <password>

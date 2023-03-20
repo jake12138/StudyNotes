@@ -318,9 +318,15 @@ hlen key
 </td></tr></table>
 
 _示例_：
-![hlen命令示例_1](img/hlen命令示例_1.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hlen person</br>
+(integer) 2</br>
+</font>
+</td></tr></table>
+
 ### 3.1.5 判断hash表中是否存在指定字段
-<table><tr><td bgcolor="#87CEFA"></br>
+<table><tr><td bgcolor="#87CEFA">
 
 ```shell
 # 判断hash表key中是否存在指定字段filed
@@ -329,7 +335,16 @@ hexists key filed
 </td></tr></table>
 
 _示例_：
-![hexists命令示例_1](img/hexists命令示例_1.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hexists person name</br>
+(integer) 1</br>
+127.0.0.1:6379> hexists person email</br>
+(integer) 0</br>
+</font>
+</td></tr></table>
+
+
 ### 3.1.6 获取hash表中所有的key
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -340,7 +355,14 @@ hkeys key
 </td></tr></table>
 
 _示例_：
-![hkeys命令示例_1](img/hkeys命令示例_1.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hkeys person</br>
+1) "name"</br>
+2) "age"</br>
+</font>
+</td></tr></table>
+
 ### 3.1.7 获取hash表中所有字段的值
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -351,7 +373,14 @@ hvals key
 </td></tr></table>
 
 _示例_：
-![hvals命令示例_1](img/hvals命令示例_1.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hvals person</br>
+1) "jake"</br>
+2) "25"</br>
+</font>
+</td></tr></table>
+
 ### 3.1.8 设置hash指定字段的数值数据增加指定大小
 **设置int类型的数据增加指定大小**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -364,11 +393,27 @@ hincrby key filed increment
 
 _示例_：
 如果increment的大小为负数则表示'减去'
-![hincrby命令示例_1](img/hincrby命令示例_1.png)
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hget person age</br>
+"25"</br>
+127.0.0.1:6379> hincrby person age -10</br>
+(integer) 15</br>
+127.0.0.1:6379> hget person age</br>
+"15"</br>
+</font>
+</td></tr></table>
+
 **注意**:
 1.如果没有这个字段或者key，则会创建它并赋值为increment.
 2. 如果filed字段不是int类型会执行失败
-   ![hincrby命令示例_2](img/hincrby命令示例_2.png)
+  <table><tr><td bgcolor=black>
+  <font color=white>
+   127.0.0.1:6379> hincrby person name 1</br>
+  (error) ERR hash value is not an integer</br>
+  </font>
+  </td></tr></table>
+
 
 **设置float类型的数据增加指定大小**
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -380,9 +425,15 @@ hincrbyfloat key filed increment
 </td></tr></table>
 
 _示例_：
-如果increment的大小为负数则表示'减去'
-![hincrbyfloat命令示例_1](img/hincrbyfloat命令示例_1.png)
-注意事项同hincrbyfloat命令
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> hget person score</br>
+"3.14"</br>
+127.0.0.1:6379> hincrbyfloat person score 3.14</br>
+"6.28"</br>
+</font>
+</td></tr></table>
+注意事项同hincrby命令
 
 ## 3.2 Hash类型原理
 ### 3.2.1 hash类型底层存储
