@@ -1,5 +1,10 @@
 TARGET := openGLTest
 
+SRC := \
+	main.cpp \
+	WindowSurface.cpp
+
+OBJ := $(subst .cpp,.o,$(SRC) )
 
 LIB := \
 	-lwayland-server \
@@ -9,8 +14,8 @@ LIB := \
 	-lGLESv2 \
 	-ltinyxml2
 
-$(TARGET):main.o WindowSurface.o
-	g++ main.o WindowSurface.o $(LIB) -o $(TARGET)
+$(TARGET):$(OBJ)
+	g++ $^ $(LIB) -o $(TARGET)
 
 main.o : main.cpp
 	g++ -c main.cpp -o main.o
