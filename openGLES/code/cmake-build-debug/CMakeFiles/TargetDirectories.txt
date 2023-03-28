@@ -1,0 +1,3 @@
+/home/jake/mygit/StudyNotes/openGLES/code/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/jake/mygit/StudyNotes/openGLES/code/cmake-build-debug/CMakeFiles/code.dir
+/home/jake/mygit/StudyNotes/openGLES/code/cmake-build-debug/CMakeFiles/edit_cache.dir

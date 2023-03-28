@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jake/mygit/StudyNotes/openGLES/code/WindowSurface.cpp
+WindowSurface.h
+/home/jake/mygit/StudyNotes/openGLES/code/WindowSurface.h
+
+/home/jake/mygit/StudyNotes/openGLES/code/WindowSurface.h
+wayland-client.h
+-
+wayland-server.h
+-
+wayland-cursor.h
+-
+wayland-egl.h
+-
+EGL/egl.h
+-
+EGL/eglplatform.h
+-
+GLES2/gl2.h
+-
+GLES2/gl2platform.h
+-
+memory
+-
+
+/home/jake/mygit/StudyNotes/openGLES/code/main.cpp
+stdio.h
+-
+WindowSurface.h
+/home/jake/mygit/StudyNotes/openGLES/code/WindowSurface.h
+

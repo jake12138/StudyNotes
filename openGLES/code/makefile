@@ -10,6 +10,7 @@ LIB := \
 	-lwayland-server \
 	-lwayland-client \
 	-lwayland-cursor \
+	-lwayland-egl \
 	-lEGL \
 	-lGLESv2 \
 	-ltinyxml2
