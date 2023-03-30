@@ -3,7 +3,7 @@ project(code)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(code main.cpp WindowSurface.cpp)
+add_executable(code main.cpp WaylandWindow.cpp)
 
 target_link_libraries(code
         wayland-server

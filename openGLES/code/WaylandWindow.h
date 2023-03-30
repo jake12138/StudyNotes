@@ -20,7 +20,7 @@
 	2.构建EGL---initEGL
 */
 
-class WindowSurface
+class WaylandWindow
 {
 private:
     // wayland窗口
@@ -31,14 +31,17 @@ private:
     struct wl_surface* mWlSurface = nullptr;
     struct wl_shell_surface* mWlShellSurface = nullptr;
     struct wl_egl_window* mEGLWindow;
+    EGLDisplay mEGLDisplay = EGL_NO_DISPLAY;
+    EGLSurface mEGLSurface = EGL_NO_SURFACE;
+    EGLContext mEGLContext = EGL_NO_CONTEXT;
 
     uint mWidth = 0; // 窗口的宽
     uint mHigh = 0; // 窗口的高
-    static std::shared_ptr<WindowSurface> mWindowSurface;
+    static std::shared_ptr<WaylandWindow> mWindowSurface;
 public:
-    static std::shared_ptr<WindowSurface> getWindowSurface(uint windowWidth = 100, uint windowHigh=100);
-    WindowSurface();
-    ~WindowSurface();
+    static std::shared_ptr<WaylandWindow> getWindowSurface(uint windowWidth = 200, uint windowHigh=200);
+    WaylandWindow();
+    ~WaylandWindow();
     void globalHandle(void *data,
                       struct wl_registry *wl_registry,
                       uint32_t name,

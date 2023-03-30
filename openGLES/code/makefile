@@ -1,29 +1,30 @@
 TARGET := openGLTest
 
-SRC := \
-	main.cpp \
-	WindowSurface.cpp
 
-OBJ := $(subst .cpp,.o,$(SRC) )
+SRCS :=
+SRCS += main.cpp
+SRCS += WaylandWindow.cpp
 
-LIB := \
-	-lwayland-server \
-	-lwayland-client \
-	-lwayland-cursor \
-	-lwayland-egl \
-	-lEGL \
-	-lGLESv2 \
-	-ltinyxml2
+
+OBJ := $(subst .cpp,.o,$(SRCS) )
+
+LIB :=
+LIB += -lwayland-server
+LIB += -lwayland-client
+LIB += -lwayland-cursor
+LIB += -lwayland-egl
+LIB += -lEGL
+LIB += -lGLESv2
+LIB += -ltinyxml2
+
 
 $(TARGET):$(OBJ)
-	g++ $^ $(LIB) -o $(TARGET)
+	g++ $^ $(LIB) -o $@
 
-main.o : main.cpp
-	g++ -c main.cpp -o main.o
+%.o:%.cpp
+	g++ -c $^ -o $@
 
-WindowSurface.o : WindowSurface.cpp
-	g++ -c WindowSurface.cpp -o WindowSurface.o
 
 clean:
-	-rm main.o WindowSurface.o openGLTest
+	-rm $(OBJ)
 
