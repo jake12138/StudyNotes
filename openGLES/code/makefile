@@ -26,5 +26,5 @@ $(TARGET):$(OBJ)
 
 
 clean:
-	-rm $(OBJ)
+	-rm $(OBJ) $(TARGET)
 

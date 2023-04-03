@@ -13,8 +13,8 @@
     D、配置文件位置：/etc
 
     E、lib文件位置：/usr/lib
-  - ```apt-get source <packagename>``` 下载该包名的源码
+  - ```sudo apt-get source <packagename>``` 下载该包名的源码
   - ```apt-get remove <packagename>``` 删除指定的包
-  - ```apt-get remove <packagename> -- purge``` 删除包，包括删除配置文件等
+  - ```apt-get remove -- purge <packagename> ``` 删除包，包括删除配置文件等
   - ```apt-get clean``` 清除无用的包
   - ```apt-get check``` 检查是否有损坏的依赖
