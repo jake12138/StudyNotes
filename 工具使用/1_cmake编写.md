@@ -32,7 +32,7 @@ include_directories(<头文件路径2>)
 这里添加的库文件路径影响target_link_libraries关键字的库文件
 ```cmake
 # 一次添加一个库文件路径
-link_directorie(<库文件路径1>)
+link_directories(<库文件路径1>)
 link_directorie(<库文件路径2>)
 ...
 ```
