@@ -8,6 +8,16 @@ gcc、python、scons环境
 - 安装gcc-4.8
   ```shell
   sudo apt-get install g++-4.8
+
+  # 如果安装失败,可能需要修改源
+  sudo vim /etc/apt/sources.list
+  # 在最后一行添加
+  deb http://dk.archive.ubuntu.com/ubuntu/ trusty main universe
+
+  # 然后更新源
+  sudo apt-get update
+  # 再次安装g++4.8
+  sudo apt-get install g++-4.8
   ```
 如果系统中有其他版本的gcc版本，则需要切换gcc版本至4.8
 - 将gcc版本切换到gcc 4.8
@@ -47,9 +57,16 @@ gcc、python、scons环境
   该工具的安装见[scons环境安装](../工具使用/3_scons编译工具.md)
   **注意**:对于一些SConstruct编写的python编译脚本，需要注意是python2.x版本还是python3.x版本，有些语法不同可能会导致编译报错。这里的示例代码中使用的是python2.x版本。
 #### 1.1.2.1 python2.x安装scons
-1. 安装python2.x
-2. 安装python2.x的pip
+1. 安装python2.7
+2. 安装python2.7的pip
+  ```shell
+  curl -o get-pip.py https://bootstrap.pypa.io/pip/2.7/get-pip.py
+  sudo python2 get-pip.py
+  ```
 3. 安装scons
+  ```shell
+  python2 -m pip install scons
+  ```
 
 在使用scons进行编译的时候，scons会使用默认的python环境来进行编译。如果系统中有其他的python版本（例如python3），可以通过切换默认python版本至python2.x
 
