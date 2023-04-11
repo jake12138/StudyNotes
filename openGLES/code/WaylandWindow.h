@@ -50,6 +50,7 @@ public:
     void globalRemoveHandle(void *data,
                             struct wl_registry *wl_registry,
                             uint32_t name);
+    bool makeCurrent();
 private:
     bool initEGL();
     bool initWayland();
