@@ -217,7 +217,7 @@ func (c *cancelCtx) cancel(removeFromParent bool, err error) {
     }
     // 设置取消原因
     c.err = err
-    设置一个关闭的channel或者将done channel关闭，用以发送关闭信号
+    //设置一个关闭的channel或者将done channel关闭，用以发送关闭信号
     if c.done == nil {
         c.done = closedchan
     } else {
@@ -236,6 +236,7 @@ func (c *cancelCtx) cancel(removeFromParent bool, err error) {
         removeChild(c.Context, c)
     }
 }
+
 ```
 可以发现cancelCtx类型变量其实也是canceler类型，因为cancelCtx实现了canceler接口。 Done方法和Err方法没必要说了，cancelCtx类型的context在调用cancel方法时会设置取消原因，将done channel设置为一个关闭channel或者关闭channel，然后将子节点context依次取消，如果有需要还会将当前节点从父节点上移除。
 

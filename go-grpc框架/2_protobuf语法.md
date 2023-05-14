@@ -208,6 +208,8 @@ service关键字可以定义一个RPC服务，并且可以使用已定义的消�
 ```protobuf
 syntax = "proto3"; // 声明了protobuf的版本
 
+option go_package="./myrpc/;MyPRC";
+
 package fixbug; // 声明了代码所在的包（对于C++来说是namespace）
 
 //定义下面的选项，表示生成service服务类和rpc方法描述，默认不生成
@@ -302,3 +304,6 @@ protoc --go_out=plugins=grpc:.rpc test.proto
 ```
 
 生成的代码存放在执行protoc命令的"./rpc/myrpc/"目录下. 也就是说通过命令protoc的--go_out参数指定的存放代码的大路径，而在这个大路径下，通过.proto文件中的```option go_package="./myrpc/;MyPRC";```指定在大路径下的代码存放位置。因此代码最终存放的位置在protoc指定的路径和.proto文件指定路径的拼接。
+
+**注意**:
+- 如果通过plugins=grpc生成代码后有对应的包找不到，使用```go mod tidy``下载依赖包
