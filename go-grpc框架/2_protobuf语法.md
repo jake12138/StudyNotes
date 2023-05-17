@@ -5,6 +5,9 @@
 ```protobuf
 syntax = "proto3";
 
+// 指定生成的=代码存放在./rpc路径下，包名为MyRPC
+option go_package="./rpc/;MyPRC";
+
 message SearchRequest {
   string query = 1;
   string number = 2;
