@@ -154,6 +154,122 @@ func main() {
 }
 ```
 
+# 2 strings.Reader
+## 2.1 Read函数
+函数原型
+```go
+func (r *Reader) Read(b []byte) (n int, err error)
+```
+**说明**： 读取最多b的容量的长度的byte内容到切片b中
+
+**参数：**
+- **<font color=green>b</font>** : 读取Reader中的字符串数据到b中
+**返回值：**
+- **<font color=green>n</font>** : 实际读取的长度，单位byte
+-  **<font color=green>err</font>** : 错误，如果Reader中没有字符或则全部字符都被都完，则返回EOF
+
+示例代码
+```go
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func main() {
+    // 创建一个Reader
+    var strReader *strings.Reader = strings.NewReader("jake")
+    if strReader == nil {
+        fmt.Println("new strings reader failed")
+        return
+    }
+
+    // 从Reader中读取内容
+    buf := make([]byte, 2)
+    size, err := strReader.Read(buf)
+    if err != nil {
+        fmt.Println("err:", err.Error())
+        return
+    }
+    fmt.Printf("size=%d, buf=%s", size, buf) //size=2, buf=ja
+}
+```
+
+## 2.2 Reader.Len方法
+函数原型：
+```go
+func (r *Reader) Len() int 
+```
+**说明**: 获取Reader中还没有被读取的字节数
+**示例代码**：
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	var strReader *strings.Reader = strings.NewReader("jake")
+
+    // 开始没有被读取的字节数为4
+	fmt.Println("Len=", strReader.Len()) // 4
+
+    // 读取2字节到buf中
+    buf := make([]byte, 2)
+	strReader.Read(buf)
+
+    // 剩余没有被读取的字节数
+	fmt.Println("Len=", strReader.Len()) // 2
+}
+```
+
+## 2.3 Reader.Seek
+函数原型：
+```go
+func (r *Reader) Seek(offset int64, whence int) (int64, error)
+```
+**说明**：修改当前读写位置，修改到whence指向位置的offset偏移量处
+**参数**： 
+- offser: 移动位置偏移量
+- whence: 移动读写位置的相对位置，有如下几个值
+  - io.SeekStart  起始位置
+  - io.SeekCurrent  当前位置
+  - io.SeekEnd 字符串末尾
+
+**示例代码**:
+```go
+package main
+
+import (
+    "fmt"
+    "io"
+    "strings"
+)
+func main() {
+    var strReader *strings.Reader = strings.NewReader("jake")
+
+    /*读取3个字节*/
+    buf := make([]byte, 3)
+    _, _ = strReader.Read(buf)
+
+    fmt.Printf("unreaded size=%d\n", strReader.Len()) // 1
+
+    /*将读取指针移到起始位置往后1字节出*/
+    strReader.Seek(1, io.SeekStart)
+    fmt.Printf("unreader size=%d\n", strReader.Len()) // 3
+}
+```
+
+## 2.4 Reader.ReadByte
+函数原型：
+```go
+func (r *Reader) ReadByte() (byte, error)
+```
+**说明**: 从strings.Reader中读取一个字节的数据并返回
+
 # 2 strings包下的其他函数
 ## 2.1 字符串比较
 相等返回0，不等返回-1
