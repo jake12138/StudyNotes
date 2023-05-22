@@ -210,7 +210,7 @@ geopos key member1 member2...
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
-# 获取keyz中的两个点member1,member2之间的水平距离.
+# 获取key中的两个点member1,member2之间的水平距离.
 #默认单位米，如果要转化为其他单位，需要在命令最后加上对应的长度单位（m, km, ft(英尺), mi(英里)）来替换[unit参数]
 
 geodist key member1 member2 [unit]

@@ -114,6 +114,9 @@ maxmemory-policy no-eviction|volatile-lru|volatile-lfu|volatile-ttl|volatile-ran
 ```
 </td></tr></table>
 
+
+ [点击查看删除策略详细](7_Redis删除策略.md)
+
 ## 1.4 定期删除配置
 <table><tr><td bgcolor=Gray></br>
 

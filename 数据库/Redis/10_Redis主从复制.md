@@ -64,7 +64,7 @@ slaveof ip port
 </td></tr></table>
 
 2. master收到消息后会相应该消息
-3.  slave收到master的相应后悔保存master的ip与端口号。
+3.  slave收到master的相应后 会保存master的ip与端口号。
 4. 然后根据保存的信息创建连接master的socket, 之后就通过这个socket来与master进行通信。
 5. 之后slave就会周期性地向master发送ping
 6. master收到salve发过来的ping指令后会回复pong。通过ping--pong来确认master是否还存在
@@ -357,14 +357,14 @@ slaveof no one
 3. 除此之外，如果这是第一个slave连接时，master还会创建[复制缓冲区](#copy-buffer "保存接收到的redis操作命令，用于aof")，将执行bgsave期间接受到的命令存起来，等待bgsave的数据发送给slave后在将这期间收到的写命令发送给slave完成数据同步。（因为在bgsave期间也有可能其他客户端在向master中写数据）
 4. bgsave生成RDB文件后，通过建立连接阶段的socket将RDB文件发送给slave。
 5. salve收到RDB数据后，清空全部数据，然后执行RDB文件恢复过程。
-6. RDB恢复完成后会向master发送指令告知masterRDN恢复已经完成。请求部分同步数据。
+6. RDB恢复完成后会向master发送指令告知masterRDB恢复已经完成。请求部分同步数据。
 7. master收到指令后，会发送命令缓冲区中的指令给salve
 8. slave收到后，执行bgrewriteaof, 恢复数据。至此数据同步完成。
 ![数据同步阶段流程图](img/主从复制_6.png)
 
 ### 2.2.2 数据同步阶段的注意事项
 **对于master**：
-- 如果master的数据量过大，数据同步阶段应该避免流量高峰期，避免造成master阻塞，影像业务正常执行。
+- 如果master的数据量过大，数据同步阶段应该避免流量高峰期，避免造成master阻塞，影响业务正常执行。
 - 复制缓冲区大小如果设置不合理，可能会导致数据溢出。
   如果进行全量复制的时间周期太长，在执行全量复制的时候，向复制缓冲区中写入的数据超过了缓冲区的容量，那么后面的数据就会丢失。这样进行部分复制的时候就会发现数据已经存在丢失情况，这时候会触发第二次的全量复制。如果再次进行部分复制的时候也发现数据溢出就又会重复全量复制，这样会致使slave陷入死循环状态。
   **修改之法**：在master的配置文件中配置
@@ -402,7 +402,7 @@ slaveof no one
 - **组成**： 运行id由40位字符组成，是一个随机的十六进制字符
   例如：a9ikkl26dnc026fo87zplm25b1q7s6c9xu00bdy5
 - **作用**：运行id被用于在服务器之间进行传输，识别身份。如果两次操作均对同一台服务器进行，必须每次操作携带对应的运行id用于对方识别。
-- **实现方式**:运行id在每台服务器启动的时候自动生成，master在首次连接slave时，会将自己的运行ID发送给slave， slave保存此ID。通过```info server```命令九二一查看节点的runid.
+- **实现方式**:运行id在每台服务器启动的时候自动生成，master在首次连接slave时，会将自己的运行ID发送给slave， slave保存此ID。通过```info server```命令查看节点的runid.
 
 示例：
 <table><tr><td bgcolor=black>
@@ -437,7 +437,7 @@ config_file:/home/jake/Programing/redis/redis-5.0.0/config/redis-master-6379.con
 </td></tr></table>
 
 **复制缓冲区**:
-- **概念**：当master与多个slave连接以后，当收到命令后，又=由master的命令传播程序将命令发送给每一个slave。除此以外，命令不传播程序还会将命令存放到一个缓冲区，这个缓冲区就是复制缓冲区。
+- **概念**：当master与多个slave连接以后，当收到命令后，由master的命令传播程序将命令发送给每一个slave。除此以外，命令不传播程序还会将命令存放到一个缓冲区，这个缓冲区就是复制缓冲区。
 这是一个先进先出的队列，默认大小1Mb,当入队元素的数量大于队列长度时，最先的元素就会被弹出，而新的元素被放入队列中。
 - **作用**: 复制缓冲区保存master接收到的全部写命令和select命令。当有一个salve因为意外断网时，如果这期间master有命令传输给slave,那么断网的这个slave就会接受不到数据，这时候，这个slave的数据状态就会和master以及其他接受到命令的slave不一致。这时候就需要将复制缓冲区中存放的命令发生给断网重连的salve,保证了数据的一致性。
 - **复制缓冲区创建时机**:每台服务器启动时，如果开启了AOF或者被连接成为master节点，就会创建复制缓冲区。

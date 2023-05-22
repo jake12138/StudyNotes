@@ -263,12 +263,27 @@ func main() {
 }
 ```
 
-## 2.4 Reader.ReadByte
+## 2.4 ReadByte方法
 函数原型：
 ```go
 func (r *Reader) ReadByte() (byte, error)
 ```
-**说明**: 从strings.Reader中读取一个字节的数据并返回
+**说明**: 从strings.Reader中读取一个字节的数据并返回.这个函数会影响Len()
+
+## 2.5 ReadAt方法
+函数原型:
+```go
+func (r *Reader) ReadAt(b []byte, off int64) (n int, err error)
+```
+示例代码：
+```go
+func main() {
+    var reader *strings.Reader = strings.NewReader("jake")
+    buf := make([]byte, 2)
+    reader.ReadAt(buf, 2)
+    fmt.Println(string(buf)) // ke
+}
+```
 
 # 2 strings包下的其他函数
 ## 2.1 字符串比较

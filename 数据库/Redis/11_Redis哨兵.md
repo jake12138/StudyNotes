@@ -43,6 +43,7 @@ sentinel failover-timeout mymaster 180000
 - **sentinel moniter** <font color=blue>mymaster</font> <font color="#87CEFA">127.0.0.1 6379</font> <font color=red>2</font> : 
 表示哨兵的名字叫mymaster,  这个名字可以自定义
 最后一个2表明，当2个哨兵认为master挂了，那么就判定master挂了，一般设置为哨兵总数量的一半+1， 这也是我们要设置哨兵数量为单数的原因。
+127.0.0.1 6379为监听的master的地址
 - **sentinel down-after-milliseconds** <font color=blue>mymaster</font> 30000
  表示，当master30000ms时间没有响应，认为master挂了。这里的mymaster需要跟moniter对应。
 - **sentinel parallel-syncs** <font color=blue>mymaster</font> 1:
@@ -98,6 +99,11 @@ dir /home/jake/Programing/redis/redis-5.0.0/working</br>
   先启动master,再启动两个slave, 最后启动3个centinel
   注意启动哨兵用redis-sentinel 命令
   到这里哨兵结构就算搭建完成了。
+  
+  ```shell
+  # 启动哨兵
+  redis-sentinel <哨兵配置文件路径>
+  ```
 
 3. 在哨兵的客户端执行 info Sentinel命令可以查看关于哨兵的信息。
 4. 当我们启动哨兵的服务后，对应的哨兵启动配置文件也会被修改，并且每当有新的哨兵加入的时候，也会在该配置文件中添加对应的信息（对应kown-sentinel）。

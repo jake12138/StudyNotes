@@ -166,7 +166,95 @@ func WithValue(parent Context, key, val interface{}) Context {
 这里添加键值对不是在原context结构体上直接添加，而是以此context作为父节点，重新创建一个新的valueCtx子节点，将键值对添加在子节点上，由此形成一条context链。获取value的过程就是在这条context链上由尾部上前搜寻：
 ![context链路](img/go-3.png)
 
+**Value Context使用示例**：
+阅读过net/http包源码的朋友可能注意到在实现http server时就用到了context, 下面简单分析一下。
 
+1、首先Server在开启服务时会创建一个valueCtx,存储了server的相关信息，之后每建立一条连接就会开启一个协程，并携带此valueCtx。
+
+func (srv *Server) Serve(l net.Listener) error {
+
+    ...
+
+    var tempDelay time.Duration     // how long to sleep on accept failure
+    baseCtx := context.Background() // base is always background, per Issue 16220
+    ctx := context.WithValue(baseCtx, ServerContextKey, srv)
+    for {
+        rw, e := l.Accept()
+
+        ...
+
+        tempDelay = 0
+        c := srv.newConn(rw)
+        c.setState(c.rwc, StateNew) // before Serve can return
+        go c.serve(ctx)
+    }
+}
+2、建立连接之后会基于传入的context创建一个valueCtx用于存储本地地址信息，之后在此基础上又创建了一个cancelCtx，然后开始从当前连接中读取网络请求，每当读取到一个请求则会将该cancelCtx传入，用以传递取消信号。一旦连接断开，即可发送取消信号，取消所有进行中的网络请求。
+
+```go
+func (c *conn) serve(ctx context.Context) {
+    c.remoteAddr = c.rwc.RemoteAddr().String()
+    ctx = context.WithValue(ctx, LocalAddrContextKey, c.rwc.LocalAddr())
+    ...
+
+    ctx, cancelCtx := context.WithCancel(ctx)
+    c.cancelCtx = cancelCtx
+    defer cancelCtx()
+
+    ...
+
+    for {
+        w, err := c.readRequest(ctx)
+
+        ...
+
+        serverHandler{c.server}.ServeHTTP(w, w.req)
+
+        ...
+    }
+}
+```
+3、读取到请求之后，会再次基于传入的context创建新的cancelCtx,并设置到当前请求对象req上，同时生成的response对象中cancelCtx保存了当前context取消方法。
+```go
+func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
+
+    ...
+
+    req, err := readRequest(c.bufr, keepHostHeader)
+
+    ...
+
+    ctx, cancelCtx := context.WithCancel(ctx)
+    req.ctx = ctx
+
+    ...
+
+    w = &response{
+        conn:          c,
+        cancelCtx:     cancelCtx,
+        req:           req,
+        reqBody:       req.Body,
+        handlerHeader: make(Header),
+        contentLength: -1,
+        closeNotifyCh: make(chan bool, 1),
+
+        // We populate these ahead of time so we're not
+        // reading from req.Header after their Handler starts
+        // and maybe mutates it (Issue 14940)
+        wants10KeepAlive: req.wantsHttp10KeepAlive(),
+        wantsClose:       req.wantsClose(),
+    }
+
+    ...
+    return w, nil
+}
+```
+这样处理的目的主要有以下几点：
+
+一旦请求超时，即可中断当前请求；
+在处理构建response过程中如果发生错误，可直接调用response对象的cancelCtx方法结束当前请求；
+在处理构建response完成之后，调用response对象的cancelCtx方法结束当前请求。
+在整个server处理流程中，使用了一条context链贯穿Server、Connection、Request，不仅将上游的信息共享给下游任务，同时实现了上游可发送取消信号取消所有下游任务，而下游任务自行取消不会影响上游任务。
 
 
 # 4 cancelCtx
@@ -466,94 +554,7 @@ func main() {
 ```
 这个例子中，只要让子线程监听主线程传入的ctx，一旦ctx.Done()返回空channel，子线程即可取消执行任务。但这个例子还无法展现context的传递取消信息的强大优势。
 
-阅读过net/http包源码的朋友可能注意到在实现http server时就用到了context, 下面简单分析一下。
 
-1、首先Server在开启服务时会创建一个valueCtx,存储了server的相关信息，之后每建立一条连接就会开启一个协程，并携带此valueCtx。
-
-func (srv *Server) Serve(l net.Listener) error {
-
-    ...
-
-    var tempDelay time.Duration     // how long to sleep on accept failure
-    baseCtx := context.Background() // base is always background, per Issue 16220
-    ctx := context.WithValue(baseCtx, ServerContextKey, srv)
-    for {
-        rw, e := l.Accept()
-
-        ...
-
-        tempDelay = 0
-        c := srv.newConn(rw)
-        c.setState(c.rwc, StateNew) // before Serve can return
-        go c.serve(ctx)
-    }
-}
-2、建立连接之后会基于传入的context创建一个valueCtx用于存储本地地址信息，之后在此基础上又创建了一个cancelCtx，然后开始从当前连接中读取网络请求，每当读取到一个请求则会将该cancelCtx传入，用以传递取消信号。一旦连接断开，即可发送取消信号，取消所有进行中的网络请求。
-
-```go
-func (c *conn) serve(ctx context.Context) {
-    c.remoteAddr = c.rwc.RemoteAddr().String()
-    ctx = context.WithValue(ctx, LocalAddrContextKey, c.rwc.LocalAddr())
-    ...
-
-    ctx, cancelCtx := context.WithCancel(ctx)
-    c.cancelCtx = cancelCtx
-    defer cancelCtx()
-
-    ...
-
-    for {
-        w, err := c.readRequest(ctx)
-
-        ...
-
-        serverHandler{c.server}.ServeHTTP(w, w.req)
-
-        ...
-    }
-}
-```
-3、读取到请求之后，会再次基于传入的context创建新的cancelCtx,并设置到当前请求对象req上，同时生成的response对象中cancelCtx保存了当前context取消方法。
-```go
-func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
-
-    ...
-
-    req, err := readRequest(c.bufr, keepHostHeader)
-
-    ...
-
-    ctx, cancelCtx := context.WithCancel(ctx)
-    req.ctx = ctx
-
-    ...
-
-    w = &response{
-        conn:          c,
-        cancelCtx:     cancelCtx,
-        req:           req,
-        reqBody:       req.Body,
-        handlerHeader: make(Header),
-        contentLength: -1,
-        closeNotifyCh: make(chan bool, 1),
-
-        // We populate these ahead of time so we're not
-        // reading from req.Header after their Handler starts
-        // and maybe mutates it (Issue 14940)
-        wants10KeepAlive: req.wantsHttp10KeepAlive(),
-        wantsClose:       req.wantsClose(),
-    }
-
-    ...
-    return w, nil
-}
-```
-这样处理的目的主要有以下几点：
-
-一旦请求超时，即可中断当前请求；
-在处理构建response过程中如果发生错误，可直接调用response对象的cancelCtx方法结束当前请求；
-在处理构建response完成之后，调用response对象的cancelCtx方法结束当前请求。
-在整个server处理流程中，使用了一条context链贯穿Server、Connection、Request，不仅将上游的信息共享给下游任务，同时实现了上游可发送取消信号取消所有下游任务，而下游任务自行取消不会影响上游任务。
 
 **总结**
 context主要用于父子任务之间的同步取消信号，本质上是一种协程调度的方式。另外在使用context时有两点值得注意：上游任务仅仅使用context通知下游任务不再需要，但不会直接干涉和中断下游任务的执行，由下游任务自行决定后续的处理操作，也就是说context的取消操作是无侵入的；context是线程安全的，因为context本身是不可变的（immutable），因此可以放心地在多个协程中传递使用。
