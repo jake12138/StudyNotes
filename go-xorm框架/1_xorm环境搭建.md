@@ -89,34 +89,34 @@
 1）编辑配置文件：vim /etc/mysql/mysql.conf.d/mysqld.cnf
 2）将 bind-address            = 127.0.0.1 去掉
 3）重启mysql使配置文件生效sudo systemctl restart mysql.service
-4）再次进入mysql:  ```sudo mysql -uroot -pzxcvbnm1997```
-5）使用mysql:  ```use mysql;```
+4）再次进入mysql  sudo mysql -uroot -pzxcvbnm1997
+5）使用mysql  use mysql;
 6）查看user表的host和user字段
-  ```select host,user from user;```
+  select host,user from user;
 可以看到root对应的host是localhost，只允许本地连接，需要将对应host改成"%"，表示允许所有ip远程连接，这里对于root账户一般可不开远程连接，一般新建账号再分配权限后开远程连接权限，我这里教程就先开远程权限了.
 7） 修改root用户的远程访问权限
-   ```update user set host='%' where user='root';```
+   update user set host='%' where user='root';
 8） 查看user表命令
- ```select host,user,plugin,authentication_string from user;```
- <font color=gray>（注：host为 % 表示不限制ip，localhost表示本机使用，plugin非mysql_native_password 则需要修改密码）</font>
+ select host,user,plugin,authentication_string from user;
+（注：host为 % 表示不限制ip，localhost表示本机使用，plugin非mysql_native_password 则需要修改密码）
 很明显，此时的root的plugin为auth_socket，所以需要修改密码。这里密码可以修改成原来一样的密码就行了
 9） 修改用户密码
 这里将密码修改为跟原密码一样zxcvbnm1997
-  ```alter user 'root'@'%' identified with mysql_native_password by 'zxcvbnm1997';```
+  alter user 'root'@'%' identified with mysql_native_password by 'zxcvbnm1997';
 这里有可能是会报1396的错误，这是因为 root用户已存在，解决办法是删除掉root用户，然后重新新增一个root用户。
 10）删除root用用户
-  ```delete from user where user='root';```
+delete from user where user='root';
 11） 新增root用户
-  ```create user 'root'@'%';```
+create user 'root'@'%';
 12） 查看
 我们发现root用户的authentication_string是空的，于是我们需要设置密码
 13） 设置密码：
-  ```alter user 'root'@'%' identified with mysql_native_password by 'zxcvbnm1997';```
+alter user 'root'@'%' identified with mysql_native_password by 'zxcvbnm1997';
 查看：
 14） 给root用户授权命令
-  ```grant all privileges on *.* to 'root'@'%' with grant option;```
+grant all privileges on *.* to 'root'@'%' with grant option;
 15） 刷新使配置生效
-  ```flush privileges;```
+flush privileges;
 16） 退出mysql并重启mysql
 
 

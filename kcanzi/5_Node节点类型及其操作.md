@@ -102,7 +102,7 @@ clickNode->addInputManipulator(clickManipulator);
 
 //订阅 ClickNode 节点的 ClickManipulator::ClickMessage 消息。
 // ClickManipulator 操纵器在用户点击节点时生成此消息。
-clickNode->addMessageHandler(ClickManipulator::ClickMessage, bind(&MyProject::onNodeClicked, this, placeholders::_1));
+clickNode->addMessageHandler(ClickManipulator::ClickMessage, bind(&MyProject::onNodeClicked, this, boost::placeholders::_1));
 
 //订阅 ClickNode 节点的 ClickManipulator::ClickCancelMessage 消息。
 // ClickManipulator 操纵器在用户第一次按下
