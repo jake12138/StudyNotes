@@ -89,18 +89,16 @@ GO111MODULE有三个值：off, on和auto（默认值）。
 1. 首先我们要在GOPATH/src 目录之外新建工程，或将老工程copy到GOPATH/src 目录之外。
 PS：go.mod文件一旦创建后，它的内容将会被go toolchain全面掌控。go toolchain会在各类命令执行时，比如go get、go build、go mod等修改和维护go.mod文件。
 go.mod 文件内提供了module, require、replace和exclude四个关键字，这里注意区分与上表中命令的区别，一个是管理go mod命令，一个是go mod文件内的关键字。
-module语句指定包的名字（路径）
-require语句指定的依赖项模块
-replace语句可以替换依赖项模块
-exclude语句可以忽略依赖项模块
+<font color=blue>module</font>语句指定包的名字（路径）
+<font color=blue>require</font>语句指定的依赖项模块
+<font color=blue>replace</font>语句可以替换依赖项模块
+<font color=blue>exclude</font>语句可以忽略依赖项模块
 下面是我们建立了一个hello.go的文件
     ```go
     package main
-    
     import (
         "fmt"
     )
-    
     func main() {
         fmt.Println("Hello, world!")
     }
