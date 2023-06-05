@@ -297,8 +297,62 @@ xorm类型与数据库类型对应关系如下：
 mysql的float类型是单精度浮点类型不小心就会导致数据误差. 单精度浮点数用4字节（32bit）表示浮点数 采用IEEE754标准的计算机浮点数，在内部是用二进制表示的 如：7.22用32位二进制是表示不下的。 所以就不精确了。 mysql中float数据类型的问题总结 对于单精度浮点数Float: 当数据范围在±131072（65536×2）以内的时候，float数据精度是正确的，但是超出这个范围的数据就不稳定，没有发现有相关的参数设置建议：将float改成double或者decimal，两者的差别是double是浮点计算，decimal是定点计算，会得到更精确的数据
 
 ### 2.2.4 添加索引
-```go
 
+**添加单索引**:
+```go
+type Book struct {
+    ID     int32  `xorm:"pk autoincr"`
+    Name   string `xorm:"char(12)"`
+    Author string `xorm:"char(12) index"`
+}
+```
+**添加联合索引**：
+```go
+type Book struct {
+    ID     int32  `xorm:"pk autoincr"`
+
+    /*添加联合索引，索引名为IDX_Book_my_index*/
+    Name   string `xorm:"char(12) index(my_index)"`
+    Author string `xorm:"char(12) index(my_index)"`
+}
+```
+
+**创建唯一索引**:
+```go
+type Book struct {
+	ID     int32  `xorm:"pk autoincr"`
+	Name   string `xorm:"char(12) unique"`
+	Author string `xorm:"char(12)"`
+}
+```
+
+**创建联合唯一索引**：
+```go
+type Book struct {
+    ID     int32  `xorm:"pk autoincr"`
+    Name   string `xorm:"char(12) unique(my_unique)"`
+    Author string `xorm:"char(12) unique(my_unique)"`
+}
+```
+定义好以上结构体后，通过 ```Engine.Sync2(xxx)```创建表的时候，会自动创建索引
+
+**CreateIndexes方法创建索引**：
+也可以通过Engine.CreateIndexes(xxx)方法创建索引
+```go
+type Book struct {
+    ID     int32  `xorm:"pk autoincr"`
+    Name   string `xorm:"char(12) unique(my_unique)"`
+    Author string `xorm:"char(12) unique(my_unique)"`
+}
+
+func main() {
+    engine.ShowSQL(true)
+
+    /*根据Book中的标签信息创建索引*/
+    if engine.CreateIndexes(&Book{}) != nil {
+        fmt.Println("create index failed:", err.Error())
+    }
+}
 ```
 
 
