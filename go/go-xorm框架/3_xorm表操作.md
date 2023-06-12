@@ -370,3 +370,81 @@ type B struct {
 在这个示例中，`BId` 字段的类型为 `int64`，并且添加了 `foreign` tag，表示需要为该字段创建外键约束。`(b.id)` 表示该外键约束关联到表 B 的字段 id 上。这里的 `b` 表示要关联的表名，可以是一个已经声明的结构体的名称，或者是字符串类型的表名。
 
 通过这种方式，你可以方便地在 xorm 中声明外键约束，简化了 SQL 语句的编写和维护。 **需要注意的是，xorm 只提供了外键的声明功能，实际的外键约束需要在数据库中使用 SQL 语句创建。** 因此，在使用 xorm 的同时，仍然需要对 SQL 语句的创建和执行有一定的了解。
+
+# 2 添加数据
+向数据库中擦汗如数据使用```engine.Insert(...)```方法, Insert方法的参数可以是**一个或多个Struct、一个或多个struct指针、一个或多个Struct的Slice、一个或多个Struct的切片指针**。
+如果传入的是Slice并且当数据库支持批量插入时，Insert会使用批量插入的方式进行插入。
+```sql
+func main() {
+    defer engine.Close()
+    engine.ShowSQL(true)
+    user := []User{
+        {Name: "tom", Age: 33},
+        {Name: "rr", Age: 44},
+    }
+    number, err := engine.Insert(&user)
+    if err != nil {
+        fmt.Println("insert record failed:", err.Error())
+    } else {
+        fmt.Printf("insert %d record\n", number)
+    }
+}
+```
+
+# 3 删除数据
+## 3.1 删除条件
+**通过Id函数**：
+## 3.2 软删除
+执行软删除时，并不会真正的删除，如果要使用软删除，需要在创建表对应的Struct的时候指定deleted字段，例如
+对于结构体
+```sql
+type User struct{
+    ID int64 `xorm:"pk INT UNSIGNED autoincr"`
+    Name string `xorm:"char(32) NOT NULL"`
+    Age int `xorm:"tinyint NOT NULL"`
+    DeletedTime time.Time `xorm:"deleted"`
+};
+```
+如果执行Delete删除函数：
+```go
+func main() {
+    defer engine.Close()
+    engine.ShowSQL(true)
+    /*会将user的字段作为查找条件*/
+    user := User{Name: "tom", Age: 33}
+    number, err := engine.Delete(user)
+    if err != nil {
+        fmt.Println("insert record failed:", err.Error())
+    } else {
+        fmt.Printf("insert %d record\n", number)
+    }
+}
+```
+会执行一下SQL语句更新DeleteTime字段，而不是删除该记录
+```sql
+UPDATE `User` SET `DeletedTime` = ? WHERE `Name`=? AND `Age`=? AND (`DeletedTime`=? OR `DeletedTime` IS NULL)
+```
+这样```Delete```函数执行完成后，user对应的记录还是存在于数据库中，只是DeleteTime字段被标记成了删除的时间
+
+## 3.3 硬删除
+那么如果记录已经被标记为删除后，要真正的获得该条记录或者真正的删除该条记录，需要启用```Unscoped```，如下所示
+```sql
+func main() {
+    defer engine.Close()
+    engine.ShowSQL(true)
+    user := User{Name: "tom", Age: 33}
+    /*直接删除，而不是设置DeletedTime字段*/
+    number, err := engine.Unscoped().Delete(user)
+    if err != nil {
+        fmt.Println("insert record failed:", err.Error())
+    } else {
+        fmt.Printf("insert %d record\n", number)
+    }
+}
+```
+
+**注意**：
+如果是对于没有声明```xorm:"deleted"```标签的，会直接删除对应的记录。
+即使在开始声明了xorm:"deleted"标签，如果后续的某次执行中把这个标签从结构体声明中删除了，那么本次的```Delete```方法会***直接从数据库中删除对应的记录**。
+
+
