@@ -424,7 +424,7 @@ func main() {
 ```sql
 UPDATE `User` SET `DeletedTime` = ? WHERE `Name`=? AND `Age`=? AND (`DeletedTime`=? OR `DeletedTime` IS NULL)
 ```
-这样```Delete```函数执行完成后，user对应的记录还是存在于数据库中，只是DeleteTime字段被标记成了删除的时间
+这样```Delete```函数执行完成后，user对应的记录还是存在于数据库中，只是DeleteTime字段被标记成了删除的时间。
 
 ## 3.3 硬删除
 那么如果记录已经被标记为删除后，要真正的获得该条记录或者真正的删除该条记录，需要启用```Unscoped```，如下所示
@@ -447,4 +447,29 @@ func main() {
 如果是对于没有声明```xorm:"deleted"```标签的，会直接删除对应的记录。
 即使在开始声明了xorm:"deleted"标签，如果后续的某次执行中把这个标签从结构体声明中删除了，那么本次的```Delete```方法会***直接从数据库中删除对应的记录**。
 
+## 3.4 修改记录
+更新记录使用 engine.Update(...)方法
+```go
+type User struct {
+    ID          int64     `xorm:"pk INT UNSIGNED autoincr"`
+    Name        string    `xorm:"char(32) NOT NULL"`
+    Age         int8      `xorm:"tinyint NOT NULL"`
+    DeletedTime time.Time `xorm:"deleted"`
+}
+
+
+user := User{Name: "jake", Age: 9}
+number, err := engine.Where("ID=6").Update(user)
+
+/*执行的SQL语句*/
+UPDATE `User` SET `Name` = ?, `Age` = ? WHERE (ID=6) AND (`DeletedTime`=? OR `DeletedTime` IS NULL)
+```
+Update的参数可以是结构体或者结构体指针。
+Update方法会自动根据结构体中的主键的值来生成条件，此外如果结构体中有标记为`xorm:"version"`的字段，那么也同时会加上version的判断条件。
+**注意：**
+- 不能只单独使用Update()方法，这会更新整张表
+```go
+effected, err := engine.Update(&user) // 会将整张表更新成user的内容，不要这样用
+```
+- Update参数不能是结构体切片或结构体切片指针。
 
