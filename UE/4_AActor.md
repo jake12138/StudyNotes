@@ -27,7 +27,20 @@ public:
 };
 ```
 
-# 2 AActor类的类型和变量
+Unreal引擎中的类的命名方式：
+![](img/name1.png)
+
+当我们创建好自己编写的C++类后，在```内容浏览器```中选择创建好的C++类，然后右击，选择```Create Blueprint class based on xxx```来创建蓝图。
+蓝图类可以扩展C++类的功能。并且如果C++类中没有内容时，创建蓝图时Unreal引擎会自动添加一个根组件。添加了组件的蓝图类可以被拖进视口窗口中。
+**组件**：组件继承自UObject. 可以给Actor以及可以在场景中显示出来的类增加一些特定的功能。能放在场景中的类都需要有一个默认根组件```DefaultSceneRoot```, 根组件用于标识类在视口中的三维位置以及其他功能。
+创建的蓝图类可以拖到视口中，并体现为一个球体。但这个球体在运行的时候会消失，这只是在设计的时候方便我们设计。
+
+我们可以手动给创建的蓝图添加一个组件---在Components窗口添加
+![](img/blueprint3.png)
+添加后在这个根组件中创建添加的组件，在蓝图编辑界面，可以点击按住子组件去替换根组件。
+![](img/blueprint4.png)
+
+# 2 AActor类的类型
 ## 2.1 UStaticMeshComponent类型
 UStaticMeshComponent将充当我们对象的可视化表示。可以通过函数
 ```c++
@@ -40,13 +53,35 @@ CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 ```
 void BeginPlay();
 ```
-在游戏开始的时候执行，可用于初始化
+在游戏开始的时候执行，可用于初始化，可以重写
 ## 3.2 Tick
 ```c++
 void Tick(float DeltaTime);
 ```
-在游戏每一帧时调用一次
+**作用**:在游戏每一帧时调用一次，，可以重写
+**参数**:
+- DeltaTime: 上一帧到本帧的时间
 
+## 3.3 CreateDefaultSubject
+```c++
+template<class TReturnType>
+TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
+```
+**作用**: 创建一个默认的组件。如果在创建的C++类中调用了这个函数。那么在基于该C++类创建蓝图的时候，添加的组件就是这个函数返回值对应的组件，组件名称为返回值所对应的变量名。
+**参数**：
+- SubjectName: 该组件在系统中的一个标识，不可重复
+- bTransient: 
+
+
+# 4 Actor类中的变量
+## 4.1 PrimaryActorTick
+```c++
+// 该变量定义在AActor类中
+struct FActorTickFunction PrimaryActorTick;
+```
+|FActorTickFunction内部变量名|类型|说明|
+|---------------------------|----|----|
+|bCanEverTick|uint8|配置每一帧是否调用Tick方法。1:每一帧调用，0:不调用Tick|
 
 # 5 代码示例
 C++类的头文件
@@ -67,6 +102,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 protected:
+
+	/*声明一个静态组件*/
 	UPROPERTY(VisibleAnyWhere)
 	UStaticMeshComponent* VisualMesh;
 
@@ -76,7 +113,7 @@ protected:
 	UFUNCTION(BlueprintCallable)  // BlueprintCallable表明可以在蓝图中调用
 	void MyFunction();
 public:	
-	// Called every frame
+	// Called every frame，DeltaTime是上一帧到本帧所用的时间
 	virtual void Tick(float DeltaTime) override;
 };
 ```
@@ -88,8 +125,9 @@ C++源文件
 // Sets default values
 AFloatingActor::AFloatingActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// 如果为true, 那么每一帧都会去调用Tick函数，否则就不会调用Tick
 	PrimaryActorTick.bCanEverTick = true;
+
 	if(USceneComponent* ExistingRootComponent = GetRootComponent()){
 		VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 		VisualMesh->SetupAttachment(RootComponent);
@@ -112,7 +150,7 @@ void AFloatingActor::BeginPlay()
 }
 
 // Called every frame
-void AFloatingActor::Tick(float DeltaTime)
+void AFloatingActor:: (float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
