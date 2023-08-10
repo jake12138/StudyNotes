@@ -1,3 +1,4 @@
+[toc]
 来源：https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/ProgrammingWithCPP/CPPProgrammingQuickStart/
 # 1 创建Actor的C++类
 - 在虚幻编辑器中，单击**文件**下拉菜单，然后选择新建**C++**类...命令。
@@ -71,6 +72,33 @@ TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
 **参数**：
 - SubjectName: 该组件在系统中的一个标识，不可重复
 - bTransient: 
+
+## 3.4 SetActorLocation
+```c++
+bool SetActorLocation(
+	const FVector& NewLocation, 
+	bool bSweep=false, 
+	FHitResult* OutSweepHitResult=nullptr, 
+	ETeleportType Teleport = ETeleportType::None)
+```
+**说明**:设置组件的位置
+**删除**：
+- NewLocation：设置的新位置
+- bSweep: 是否扫描
+- OutSweepHitResult：击中的结果
+- Teleport： 
+
+**示例1**：
+```c++
+void AFloatingActor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// 开始时默认设置为(0,0,0)
+	FVector location(0.0f);
+	SetActorLocation(location);
+}
+```
 
 
 # 4 AActor类中的变量
