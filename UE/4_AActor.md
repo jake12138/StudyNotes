@@ -73,7 +73,7 @@ TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
 - bTransient: 
 
 
-# 4 Actor类中的变量
+# 4 AActor类中的变量
 ## 4.1 PrimaryActorTick
 ```c++
 // 该变量定义在AActor类中
