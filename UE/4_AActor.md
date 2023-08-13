@@ -63,7 +63,7 @@ void Tick(float DeltaTime);
 **参数**:
 - DeltaTime: 上一帧到本帧的时间
 
-## 3.3 CreateDefaultSubject
+## 3.3 创建对象
 ```c++
 template<class TReturnType>
 TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
@@ -72,6 +72,11 @@ TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
 **参数**：
 - SubjectName: 该组件在系统中的一个标识，不可重复
 - bTransient: 
+
+**示例**：
+```c++
+
+```
 
 ## 3.4 SetActorLocation
 ```c++
@@ -97,6 +102,37 @@ void AFloatingActor::BeginPlay()
 	// 开始时默认设置为(0,0,0)
 	FVector location(0.0f);
 	SetActorLocation(location);
+}
+```
+
+## 3.4 AddActorLocalOffset
+```c++
+void AActor::AddActorLocalOffset(
+	FVector DeltaLocation,
+	bool bSweep=false, 
+	FHitResult* OutSweepHitResult=nullptr, 
+ 	ETeleportType Teleport = ETeleportType::None);
+``` 
+**描述**:将Actor向一个指定的向量进行移动
+**参数**：
+- <font color=blue>DeltaLocation</font>： 移动的向量
+- bSweep：是否启用扫描。
+  true:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
+  false:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
+- OutSweepHitResult：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
+- Teleport：
+
+**示例**:
+```c++
+// Called every frame
+void AFloatingActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	/*每一帧移动(0,0,-2), 并打印碰撞检测结果*/
+	FHitResult hitResult;
+	AddActorLocalOffset(FVector(0.0f, 0.0f, -2.0f), true, &hitResult);
+	// 打印碰撞时自身的位置
+	UE_LOG(LogTemp, Warning, TEXT("X=%f, Y=%f, Z=%f"), hitResult.Location.X,hitResult.Location.Y,hitResult.Location.Z);
 }
 ```
 
