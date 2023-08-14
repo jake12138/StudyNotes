@@ -116,11 +116,11 @@ void AActor::AddActorLocalOffset(
 **描述**:将Actor向一个指定的向量进行移动
 **参数**：
 - <font color=blue>DeltaLocation</font>： 移动的向量
-- bSweep：是否启用扫描。
+- <font color=blue>bSweep</font>：是否启用扫描。
   true:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
   false:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
-- OutSweepHitResult：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
-- Teleport：
+- <font color=blue>OutSweepHitResult</font>：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
+- <font color=blue>Teleport</font>：
 
 **示例**:
 ```c++
@@ -135,6 +135,44 @@ void AFloatingActor::Tick(float DeltaTime)
 	UE_LOG(LogTemp, Warning, TEXT("X=%f, Y=%f, Z=%f"), hitResult.Location.X,hitResult.Location.Y,hitResult.Location.Z);
 }
 ```
+
+# 3.5 AddActorLocalRotation
+```c++
+void AddActorLocalRotation(FRotator DeltaRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
+void AddActorLocalRotation(const FQuat& DeltaRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
+```
+**作用**： 使得Actor在自身的Rotation下增加DeltaRotation，体现在`Details`区域的`Transform|Rotation`设置项。
+**参数**：
+- <font color=blue>DeltaRotation</font>: 增加的Rotation值
+- <font color=blue>bSweep</font>: 是否启用扫描。
+  `true`:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
+  `false`:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
+- <font color=blue>OutSweepHitResult</font>：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
+- <font color=blue>Teleport</font>：
+
+# 3.5 SetActorEnableCollision
+```c++
+void AActor::SetActorEnableCollision(bool bNewActorEnableCollision);
+```
+**作用**: 设置Actor是否开启碰撞，该设置项优先于Unreal编辑器中的设置
+**参数**：
+- <font color=blue>bNewActorEnableCollision</font>: true: 开启碰撞。false: 关闭碰撞(可以穿过障碍物)
+
+# 3.6 SetActorScale3D
+```c++
+void AActor::SetActorScale3D(FVector NewScale3D);
+```
+**作用**: 设置Actor在(x,y,z)上的缩放比例
+**参数**：
+- <font color=blue>NewScale3D</font>: 在(x,y,z)上的缩放比例
+
+# 3.7 GetActorScale3D
+```c++
+FVector AActor::GetActorScale3D();
+```
+**作用**: 获取Actor在(x, y, z)上的缩放比例。如果RootContent为空则返回(1,1,1)
+**返回值**:Actor在(x, y, z)上的缩放比例
+
 
 
 # 4 AActor类中的变量
