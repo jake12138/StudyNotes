@@ -15,3 +15,6 @@ https://docs.unrealengine.com/4.27/zh-CN/Basics/UnrealEngineTerminology/
 旋转移动组件（Rotate Movement Component）能使你的Actor四处旋转，
 音频组件（Audio Component）将使你的Actor能够播放声音。
 组件必须绑定在Actor身上，它们无法单独存在。
+
+# 4 Paw
+是一个特殊的Actor, 可以被controller控制, 接受外界的输入并作出响应。一般用于游戏角色或则NPC.

@@ -63,7 +63,7 @@ void Tick(float DeltaTime);
 **参数**:
 - DeltaTime: 上一帧到本帧的时间
 
-## 3.3 创建对象
+## 3.3 CreateDefaultSubject创建对象
 ```c++
 template<class TReturnType>
 TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
@@ -75,7 +75,12 @@ TReturnType* CreateDefaultSubject(FName SubjectName, bool bTransient = false);
 
 **示例**：
 ```c++
-
+AFloatingActor::AFloatingActor()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyStaticMesh"));
+}
 ```
 
 ## 3.4 SetActorLocation
