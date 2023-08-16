@@ -95,6 +95,8 @@ bool SetActorLocation(
 **删除**：
 - NewLocation：设置的新位置
 - bSweep: 是否扫描
+`true`:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
+  `false`:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
 - OutSweepHitResult：击中的结果
 - Teleport： 
 
@@ -141,7 +143,7 @@ void AFloatingActor::Tick(float DeltaTime)
 }
 ```
 
-# 3.5 AddActorLocalRotation
+## 3.5 AddActorLocalRotation
 ```c++
 void AddActorLocalRotation(FRotator DeltaRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
 void AddActorLocalRotation(const FQuat& DeltaRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
@@ -155,7 +157,7 @@ void AddActorLocalRotation(const FQuat& DeltaRotation, bool bSweep=false, FHitRe
 - <font color=blue>OutSweepHitResult</font>：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
 - <font color=blue>Teleport</font>：
 
-# 3.5 SetActorEnableCollision
+## 3.5 SetActorEnableCollision
 ```c++
 void AActor::SetActorEnableCollision(bool bNewActorEnableCollision);
 ```
@@ -163,7 +165,7 @@ void AActor::SetActorEnableCollision(bool bNewActorEnableCollision);
 **参数**：
 - <font color=blue>bNewActorEnableCollision</font>: true: 开启碰撞。false: 关闭碰撞(可以穿过障碍物)
 
-# 3.6 SetActorScale3D
+## 3.6 SetActorScale3D
 ```c++
 void AActor::SetActorScale3D(FVector NewScale3D);
 ```
@@ -171,14 +173,39 @@ void AActor::SetActorScale3D(FVector NewScale3D);
 **参数**：
 - <font color=blue>NewScale3D</font>: 在(x,y,z)上的缩放比例
 
-# 3.7 GetActorScale3D
+## 3.7 GetActorScale3D
 ```c++
 FVector AActor::GetActorScale3D();
 ```
 **作用**: 获取Actor在(x, y, z)上的缩放比例。如果RootContent为空则返回(1,1,1)
 **返回值**:Actor在(x, y, z)上的缩放比例
 
+## 3.8 SetRelativeLocation
+```c++
+void USceneComponent::SetRelativeLocation(FVector NewLocation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
+```
+**作用**: 设置自身相对于父组件的相对位置，父组件的位置加上NewLocation
+**参数**:
+- <font color=blue>NewLocation</font>: 相对位置变化量
+- <font color=blue>bSweep</font>: 是否扫描
+`true`:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
+  `false`:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
+- <font color=blue>OutSweepHitResult</font>：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
+- <font color=blue>Teleport</font>：
 
+## 3.9 SetRelativeRotation
+```c++
+void USceneComponent::SetRelativeRotation(FRotator NewRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
+void USceneComponent::SetRelativeRotation(const FQuat& NewRotation, bool bSweep=false, FHitResult* OutSweepHitResult=nullptr, ETeleportType Teleport = ETeleportType::None);
+```
+**作用**：设置自身与父组件的相对Rotaion位置
+**参数**:
+- <font color=blue>NewRotation</font>: 相对旋转位置变化量
+- <font color=blue>bSweep</font>: 是否扫描
+`true`:启用扫描。这时在Actor移动的时候，会扫描下将要到达的位置的路径上是否有阻挡物，如果有，就在阻挡物前面停止移动，这样可以在没有启用模拟物理的情况下也可以有碰撞的效果。
+  `false`:不启用。这样在碰到阻挡物后，如果启用了模拟物理，就会产生碰撞效果，如果没有启用模拟物理就会直接穿过阻挡物
+- <font color=blue>OutSweepHitResult</font>：击中结果。当发生碰撞时，返回与自身发生碰撞的相关信息。FHitResult的信息参见：[100_FHitResult结构体](100_FHitResult结构体.md)
+- <font color=blue>Teleport</font>：
 
 # 4 AActor类中的变量
 ## 4.1 PrimaryActorTick

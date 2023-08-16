@@ -117,3 +117,21 @@ AMyPawn::AMyPawn()
 ```
 代码编写完后再Unreal编辑器中编译，然后打开蓝图给VisibleMesh添加`Static Mesh` 和材质`Materials`
 ![](img/blueprint6.png)
+
+# 4 替换初学者内容包中的Pawn
+将我们自己创建的Pawn替换初学者内容包中的Pawn来作为玩家。
+1. 在`内容浏览器`中的`C++类`区域选择继承自`Game Mode Base`的类，如果没有就自己创建一个c++类，选择继承`Game Mode Base`类。
+2. 基于创建的游戏模式类，创建蓝图。
+3. 双击创建的蓝图，进入蓝图编辑界面。在`Details`区域中`Classes`的`Default Pawn Class`选项选择前面基于Pawn创建的BP_MyPawn蓝图类。然后编译保存
+![](img/blueprint7.png)
+4. 打开`World Setting`。在`World Outliner`中选中根节点，右击。即可找到`World Setting`选项
+![](img/blueprint8.png)
+5. 在`Game Mode`下的`GameMode Override`中选择我们前面创建的基于`Game Mode Class`的蓝图类BP_MyGameModeBase
+![](img/gamemode_1.png)
+6. 这时候点击`Play`就会发现我们自己创建的Pawn就替换变成了游戏角色，但是还不能移动和旋转视角。
+下面将添加视角和移动
+7. 在我们创建的BP_MyPawn蓝图类中，在`Details`区域中设置`Auto Prossess Player`为`Player 0`。 这里的Player 0的含义表示在网络游戏中，我们自己操控的本地角色或则单机游戏中我们操控的角色。
+![](img/mypawn_1.png)
+
+8. 在我们创建的c++类`MyPawn`的构造函数中添加代码
+`AutoPossessPlayer = EAutoReceiveInput::Player0;`
