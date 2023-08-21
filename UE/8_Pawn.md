@@ -135,3 +135,72 @@ AMyPawn::AMyPawn()
 
 8. 在我们创建的c++类`MyPawn`的构造函数中添加代码
 `AutoPossessPlayer = EAutoReceiveInput::Player0;`
+
+# 5 给Pawn类添加输入--按键映射（控制Pawn移动）
+1. 在工具栏中打开`Setting`
+![](img/input_1.png)
+2. 打开`Project Setting`
+![](img/input_2.png)
+3. 在`Project Seeting`中找到`input`设置项
+![](img/input_3.png)
+4. 在`input`设置界面里面有`Action Mapping`和`Axis Mapping`, 它们分别是动作银色和轴映射。动作映射和轴映射概念见[动作映射](2_UE中的名词和术语.md#5-动作映射)、[轴映射](2_UE中的名词和术语.md#6-轴映射)
+5. 因为要通过按键来控制Pawn的移动，因此我们需要添加`轴事件`.点击 `Axis Mapping`后面的加号添加一个轴事件，并重新命名。如下命名为ForwarldPawn. 再点击我们MoveForward后面的+号，可以创建触发这个事件的行为，如按键、鼠标事件等。
+![](img/input_4.png)
+6. 在上面创建的触发事件中选择触发移动Pawn的事件，这里选择`W`为向前、`S`表示向后
+![](img/input_5.png)
+这样创建好后，当我们按下这个按键时，Unreal引擎就会不断地调用我们创建的这个事件对应的函数。
+事件后面的`Scale`的值就是传给这个函数的值，每次被调用就传入Scale，从而可以根据Scale的值来做游戏逻辑。按照同样的方式可以添加左右移动
+7. 以上我们在Unreal编辑器中进行了按键事件的设置，接下来需要在代码里绑定事件映射。
+在我们创建的类中定义好前后、左右移动的函数，函数名自定义，但建议根上面创建事件时起的名字一致。
+```c++
+private:
+	void MoveForward(float value); // 前后移动
+	void MoveRight(float value); // 左右移动
+```
+
+**函数实现**:
+```c++
+void AMyPawn::MoveForward(float value){
+	Valocity.X = FMath::Clamp(value, -1.0f, 1.0f)*MaxSpeed;
+	UE_LOG(LogTemp, Warning, TEXT("move forward %f"), value);
+}
+
+void AMyPawn::MoveRight(float value){
+	Valocity.Y = FMath::Clamp(value, -1.0f, 1.0f)*MaxSpeed;
+	UE_LOG(LogTemp, Warning, TEXT("move right value=%f"), value);
+}
+
+void AMyPawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	/*乘以DeltaTime后就能实现移动速度与帧率无关，因为如果两帧之间间隔大的话，下面计算出的位移也大；两帧之间间隔小，计算出的位移也小*/
+	AddActorLocalOffset(Valocity*DeltaTime, true);
+}
+```
+
+
+8. 绑定我们定义的函数
+需要头文件`#include "Components/InputComponent.h"`.
+在`SetupPlayerInputComponent`函数的实现中添加
+```c++
+void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// 绑定我们定义的函数到InputComponent中
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMyPawn::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMyPawn::MoveRight);
+}
+```
+这样当我们一直按住定义的按键后，每一帧都会调用`MoveForward`、`MoveRight`并将对应事件的`Scale`值作为参数传入。
+**BindAxis函数介绍**
+```c++
+template<class UserClass>
+FInputAxisBinding& BindAxis( const FName AxisName, UserClass* Object, typename FInputAxisHandlerSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr Func )
+```
+**作用**: 将函数绑定到InputComponent上
+**参数**：
+- <font color=blue>AxisName</font>:绑定事件的名字
+- <font color=blue>Object</font>: 待绑定函数所属的实例对象
+- <font color=blue>Func</font>: 函数地址

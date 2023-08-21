@@ -100,6 +100,7 @@ _示例_：
 &nbsp 2) "JayChou"</br>
 </font>
 </td></tr></table>
+
 ### 2.2.3 删除数据
 <table><tr><td bgcolor="87CEFA"></br>
 
@@ -108,9 +109,11 @@ del key # 删除string类型key对应的value
 ```
 </td></tr></table>
 
-**tips**：del 命令后面可以接多个key, 每个key用空格分开
+**tips**：
+1. del 命令后面可以接多个key, 每个key用空格分开
 _示例_：
 <font color=Gray>返回的(integer)2说明成功删除了2个key, 如果输出的是(integer)0说明没有删除任何key(一般是没有对应的key)</font>
+2. del命令还可以删除string、hash、set、list、sorted_set类型
 
 <table><tr><td bgcolor="black">
 <font color=white>
@@ -153,7 +156,7 @@ append key value # 将value添加到原本key的值的后面
 </td></tr></table>
 
 _示例_:
-<font color=Gray>append命令的输出(integer) 9表示追加字符后新的字符的长度（字节）。</font>
+<font color=Gray>append命令的输出(integer) 20表示追加字符后新的字符的长度（字节）。</font>
 <table><tr><td bgcolor="black">
 <font color=white>
 127.0.0.1:6379> get SongName</br>
@@ -203,6 +206,33 @@ _示例_
 <font color=white>
 127.0.0.1:6379> hmset person name jake age 25</br>
 OK</br>
+</font>
+</td></tr></table>
+
+**仅添加不存在的hash filed信息，filed存在则不添加**
+<table><tr><td bgcolor="#87CEFA"></br>
+
+```shell
+# 设置hash的key的filed为value,如果filed已经存在则会执行失败
+hsetnx key filed value
+```
+</td></tr></table>
+
+_示例_：
+<font color=Gray>如果执行成功会输出"(integer) 1", 执行失败会输出
+"(integer) 0". 示例中线设置name字段，但因为name字段已经存在，所以会执行失败。后面设置email字段成功</font>
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> hget person name</br>
+"jake"</br>
+127.0.0.1:6379> hsetnx person name terry</br>
+(integer) 0</br>
+127.0.0.1:6379> hsetnx person email 123@jake.com</br>
+(integer) 1</br>
+127.0.0.1:6379> hget person name</br>
+"jake"</br>
+127.0.0.1:6379> hget person email</br>
+"123@jake.com"</br>
 </font>
 </td></tr></table>
 
@@ -263,32 +293,6 @@ _示例_：
 </font>
 </td></tr></table>
 
-**仅添加不存在的hash filed信息，filed存在则不添加**
-<table><tr><td bgcolor="#87CEFA"></br>
-
-```shell
-# 设置hash的key的filed为value,如果filed已经存在则会执行失败
-hsetnx key filed value
-```
-</td></tr></table>
-
-_示例_：
-<font color=Gray>如果执行成功会输出"(integer) 1", 执行失败会输出
-"(integer) 0". 示例中线设置name字段，但因为name字段已经存在，所以会执行失败。后面设置email字段成功</font>
-<table><tr><td bgcolor="black">
-<font color=white>
-127.0.0.1:6379> hget person name</br>
-"jake"</br>
-127.0.0.1:6379> hsetnx person name terry</br>
-(integer) 0</br>
-127.0.0.1:6379> hsetnx person email 123@jake.com</br>
-(integer) 1</br>
-127.0.0.1:6379> hget person name</br>
-"jake"</br>
-127.0.0.1:6379> hget person email</br>
-"123@jake.com"</br>
-</font>
-</td></tr></table>
 
 ### 3.1.3 删除hash数据
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -308,11 +312,11 @@ _示例_：
 </font>
 </td></tr></table>
 
-### 3.1.4 获取hash表中字段的数量
+### 3.1.4 获取hash表中键值对的数量
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
-# 获取hash表key中字段的数量
+# 获取hash表key中键值对的数量
 hlen key
 ```
 </td></tr></table>
@@ -433,7 +437,8 @@ _示例_：
 "6.28"</br>
 </font>
 </td></tr></table>
-注意事项同hincrby命令
+注意事项同hincrby命令</br>
+1. 对于数据的实际值是整数，可以使用hincrbyfloat来操作，但如果操作过后，数值变为了小数，则不能再使用incrby来操作
 
 ## 3.2 Hash类型原理
 ### 3.2.1 hash类型底层存储
@@ -461,6 +466,8 @@ lpush key value1 value2 ...
 **示例**：
 通过lpush进去的数据在内部的排列顺序为: orange,apple
 ![lpush命令示例_1](img/lpush命令示例_1.png)
+对于通过`lpush`对各数据到指定key中时，是一次从左到右push数据。例如上面的命令push到fruits中的数据实际排列顺序为`orange apple`,这是因为先push了`apple`，然后再在list的左边push了`orange`。因此`orange`在list的最左边。
+
 **从list的右边push数据**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -494,7 +501,7 @@ lrange key start stop
  <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
-#返回索引在区间[start,stop]的数据
+#返回指定索引的数据，没有这返回空(索引从0开始)
 lindex key index
 ```
 </td></tr></table>
@@ -502,6 +509,9 @@ lindex key index
 **示例**：
 <font color=Gray>如果index下没有value则返回(nil)</font>
 ![lindex命令示例_1](img/lindex命令示例_1.png)
+
+**注意**：
+1. 如果index的-1，则返回最后一个的数据，-2表示倒数第2个，以此类推。
 
 ### 4.1.3 获取list中的元素的个数
 <table><tr><td bgcolor="#87CEFA"></br>
@@ -514,7 +524,7 @@ llen key
 **示例**：
 ![llen命令示例_1](img/llen命令示例_1.png)
 
-### 4.1.4 获取并移除数据
+### 4.1.4 获取并移除list中的数据
 **获取并移除list key中最左边的一个元素**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -580,7 +590,7 @@ ltrim key start stop
 </td></tr></table>
 
 **示例**：
-<font color=Gray>起始列表fruits中包含数据(apple,orange,watermenoon), 截取区间[1,2]后，fruits中的值变成了(orange,watermeoon)</font>
+<font color=Gray>起始列表fruits中包含数据(apple,orange,watermenoon), 截取索引区间[1,2]后，fruits中的值变成了(orange,watermeoon)</font>
 ![ltrim命令示例_1](img/ltrim命令示例_1.png)
 
 ### 4.1.7 更新list数据
@@ -808,6 +818,7 @@ zadd key score1 member1 score2 member2...
 ![zadd命令示例_1](img/zadd命令示例_1.png)
 
 ### 6.1.2 查看数据
+#### 6.1.2.1 zrange
 **根据索引来查看数据，以score的升序来进行排序，即索引为0的score是最小的**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -825,6 +836,7 @@ zrange key start stop [withscores]
 <font color=Gray>获取exam中的全部成员，同时输出对应的score信息。成员chinese的score为100，成员math的score为123。</font>
 ![zrange命令示例_2](img/zrange命令示例_2.png)
 
+#### 6.1.2.2 zrevrange
 **根据索引来查看数据，以score的降序来进行排序，即索引为0的score是最大的**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -842,6 +854,7 @@ zrevrange key start stop [withscores]
 <font color=Gray>获取exam中的全部成员，同时输出对应的score信息。成员chinese的score为100，成员math的score为123。</font>
 ![zrevrange命令示例_2](img/zrevrange命令示例_2.png)
 
+#### 6.1.2.3 zrangebyscore
 **按score条件获取数据，结果为升序**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -858,13 +871,14 @@ zrangebyscore key min max [withscores] [limit offset count]
 因为exam中满足score在[120,150]的数据有3个，按**升序**排列为(chinese(120),math(130),biology(140)), 偏移为1的是math, 最多取两个member，因此输出结果为(math(130),biology(140)).</font>
 ![zrangebyscore命令示例_1](img/zrangebyscore命令示例_1.png)
 
+#### 6.1.2.4 zrevrangebyscore
 **按score条件获取数据，结果为降序**
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
 # 获取score在[max,min]区间的数据
 # withscores参数表示同时获取member的score
-# limit offset count表示从第offset个开始获取count个
+# limit offset count表示从第offset个开始获取count个(包括offset)
 zrevrangebyscore key max min [withscores] [limit offset count]
 ```
 </td></tr></table>
@@ -876,11 +890,12 @@ zrevrangebyscore key max min [withscores] [limit offset count]
 
 
 ### 6.1.3 删除sorted_set成员
-**根据sorted_set中的元素删除**
+#### 6.1.3.1 zrem
+**删除sorted_set中的元素**
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
-# 查看key中索引为[start,stop]的成员,按score降序.
+# 删除key中的member1、menber2成员
 zrem key member1 member2 ...
 ```
 </td></tr></table>
@@ -889,6 +904,7 @@ zrem key member1 member2 ...
 <font color=GRAY>删除exam中的math,chinese,english成员，因为exam中没有english成员，因此忽略english。 并且输出的(integer)2表示成功删除2个成员。</font>
 ![zrem命令示例_1](img/zrem命令示例_1.png)
 
+#### 6.1.3.2 zremrangebyrank
 **根据索引范围删除sorted_set中的元素**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -902,6 +918,7 @@ zremrangebyrank key start stop
 <font color=GRAY>起始exam按score的升序排列元素为(english,chinese,math,biology), 因为删除了索引在[1,2]之间的(chinese,math), 因此剩余(english,biology).</font>
 ![zremrangebyrank命令示例_1](img/zremrangebyrank命令示例_1.png)
 
+#### 6.1.3.3 zremrangebyscore
 **根据score范围删除sorted_set中的元素**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -953,10 +970,11 @@ zinterstore dest numkeys key1 key2 ...
 <font color=Gray>如果在zinterstore命令中添加**aggregate max**可以在进行合并时，score取最大值</font>
 ![zinterstore命令示例_2](img/zinterstore命令示例_2.png)
 
-<font color=Gray>如果在zinterstore命令中添加**aggregate min**可以在进行合并时，score取最大值</font>
+<font color=Gray>如果在zinterstore命令中添加**aggregate min**可以在进行合并时，score取最小值</font>
 ![zinterstore命令示例_3](img/zinterstore命令示例_3.png)
 
 ### 6.1.6 获取数据对应的索引
+#### 6.1.6.1 zrank
 **以score的升序排列，获取指定成员的索引**
 <table><tr><td bgcolor="#87CEFA"></br>
 
@@ -970,7 +988,8 @@ zrank key member
 <font color=Gray>获取到math的索引为1</font>
 ![zrank命令示例_1](img/zrank命令示例_1.png)
 
-**以score的升序排列，获取指定成员的索引**
+#### 6.1.6.2 zrevrank
+**以score的降序排列，获取指定成员的索引**
 <table><tr><td bgcolor="#87CEFA"></br>
 
 ```shell
@@ -1013,7 +1032,7 @@ zincrby key incremement member
 - scor保存的数据空间是64位，如果是整数，则对应范围是-9007199254740992~9007199254740992
 - score保存的数据也可以是一个双精度的double值，基于双精度浮点数的特征，可能会丢失精度，使用时需要谨慎
   ![double_score_1](img/double_score_1.png)
-- sorted_set底层存储还是基于set结构的，因此数据不能重复，如果添加相同数据，score值将会反复被覆盖，保留最后一次修改的结果。
+- sorted_set底层存储还是基于set结构的，因此数据不能重复，如果添加相同数据，score值将会反复被覆盖，保留最后一次修改的结果。(zadd可以用于修改score值)
 
 # 7 单数据操作和多数据操作
 我们在对数据进行操作的时候，会遇到单数据操作和多数据操作。像对string类型的set和mset。它们的区别就是set命令只能设置一对string类型的key-value，而mset可以设置多对key-value的组合。
@@ -1031,3 +1050,45 @@ mset key1 value1 key2 value2 ...
 这3个步骤都会消耗时间，如果是3条指令以单指令的方式执行，那么指令在发送到Redis服务器和返回的步骤会执行3x2=6次，执行次数3次。
 如果这3条指令以多指令发送，那么3条指令的往返次数就是2次. 执行次数3次。
 这样看来似乎是多指令效率更高，但虽然多指令下数据传输的次数变少了，但数据量也变大了，单次传输的时间会更长。因此使用单指令还是多指令需要权衡指令量与传输时长的关系。一般要set的数据多的话用多指令更好，数据量较少使用单指令。
+
+# 7 各个基本类型之间的转化(实践)
+## 7.1 其他类型转化为string类型
+其他所有基本类型后类型可以转化为string类型，转化后原本类型中的数据会丢失。
+但string类型不能转化为其他数据类型
+**示例**：
+<table><tr><td bgcolor=black>
+
+```shell
+# 设置一个list类型
+127.0.0.1:6379> lpush myType name age
+(integer) 2
+# myType的类型是list
+127.0.0.1:6379> type myType
+list
+
+# 使用set命令设置与list的同名key
+127.0.0.1:6379> set myType jake
+OK
+# 发现myType的类型变为了string
+127.0.0.1:6379> type myType
+string
+# 试图对myType执行lpush操作但是失败
+127.0.0.1:6379> lpush myType name age
+(error) WRONGTYPE Operation against a key holding the wrong kind of value
+```
+</td></tr></table>
+
+## 7.2 string与set/sorted_set类型
+在一些情况下string类型可以变为set/sorted_set类型。即通过`zinterstore`命令，将两个sorted_set进行交集处理后存储到string类型的key中，那么这个key就会变成sorted_set（zset）l类型
+```shell
+# 起始，target为string类型
+127.0.0.1:6379> type target
+string
+# 将两个zset类型求交集和结果存入target中
+127.0.0.1:6379> zinterstore target 2 sc1 sc2
+(integer) 1
+# target的类型变为了zset
+127.0.0.1:6379> type target
+zset
+```
+此外有类似效果的redis命令还有：`zunionstore`

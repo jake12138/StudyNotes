@@ -42,7 +42,7 @@ OK</br>
 
 ```shell
 # 设置指定key上对应偏移量的bit值,value只能是0或1
-setbit key value
+setbit key offset value
 ```
 </td></tr></table>
 

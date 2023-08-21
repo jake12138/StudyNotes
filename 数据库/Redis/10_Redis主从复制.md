@@ -189,7 +189,7 @@ OK
 **结论**:
 可见在构建master-slave架构后，在master上进行写入的数据会同步到slave上。
 
-我们可以在master的我redis客户端上通过执行info replication命令来查看该master连接的slave信息。
+我们可以在master的redis客户端上通过执行info replication命令来查看该master连接的slave信息。
 <table><tr><td bgcolor=black>
 <font color=white>
 127.0.0.1:6379> info replication</br>
@@ -437,9 +437,9 @@ config_file:/home/jake/Programing/redis/redis-5.0.0/config/redis-master-6379.con
 </td></tr></table>
 
 **复制缓冲区**:
-- **概念**：当master与多个slave连接以后，当收到命令后，由master的命令传播程序将命令发送给每一个slave。除此以外，命令不传播程序还会将命令存放到一个缓冲区，这个缓冲区就是复制缓冲区。
+- **概念**：当master与多个slave连接以后，当收到命令后，由master的命令传播程序将命令发送给每一个slave。除此以外，命令传播程序还会将命令存放到一个缓冲区，这个缓冲区就是复制缓冲区。
 这是一个先进先出的队列，默认大小1Mb,当入队元素的数量大于队列长度时，最先的元素就会被弹出，而新的元素被放入队列中。
-- **作用**: 复制缓冲区保存master接收到的全部写命令和select命令。当有一个salve因为意外断网时，如果这期间master有命令传输给slave,那么断网的这个slave就会接受不到数据，这时候，这个slave的数据状态就会和master以及其他接受到命令的slave不一致。这时候就需要将复制缓冲区中存放的命令发生给断网重连的salve,保证了数据的一致性。
+- **作用**: 复制缓冲区保存master接收到的全部写命令和select命令。当有一个salve因为意外断网时，如果这期间master有命令传输给slave,那么断网的这个slave就会接收不到数据，这时候，这个slave的数据状态就会和master以及其他接受到命令的slave不一致。这时候就需要将复制缓冲区中存放的命令发生给断网重连的salve,保证了数据的一致性。
 - **复制缓冲区创建时机**:每台服务器启动时，如果开启了AOF或者被连接成为master节点，就会创建复制缓冲区。
 - **组成**： 复制缓冲区由偏移量和字节值组成。
 - **复制缓冲区的工作原理**：
@@ -581,6 +581,7 @@ repl-id和repl-offset字段分别对应master_replid和offset
 **解决之法**： 提高ping指令的发送频度
 超时时间repl-timeout的时间至少是ping指令频度的5~10倍。否则slave很容易被判定超时。
 ```shell
+# master发送ping指令的时间间隔
 repl-ping-slave-period seconds
 
 # redis5.0.0版本及其以后也写作,其实作用都是一样的
@@ -612,7 +613,7 @@ repl-backlog-size 1mb
 # slave数量少于2个时，强制关闭master写功能
 min-slaves-to-write 2
 
-# 所有slave的延迟时长都大于10秒时，强制关闭master写功能
+# 所有slave的延迟时长都大于8秒时，强制关闭master写功能
 min-slaves-max-lag 8
 
 # slave未响应时间，之后断开与未响应时间超时的slave
