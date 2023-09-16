@@ -168,6 +168,67 @@ _示例_:
 </font>
 </td></tr></table>
 
+### 2.2.6 string数字自增
+```shell
+# 将key的值加1，前提是key的值是整数，不然回失败
+incr key
+```
+
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> get number</br>
+"2"</br>
+127.0.0.1:6379> incr number</br>
+(integer) 3</br>
+127.0.0.1:6379> get number</br>
+"3"</br>
+</font>
+</td></tr></table>
+
+### 2.2.7 string数字加减指定数字
+```shell
+# 将key的值加value，前提是key的值是整数，不然回失败
+# 当value是负数是则为减
+incrby key value
+```
+
+<table><tr><td bgcolor=black>
+<font color=white>
+127.0.0.1:6379> incrby number 2</br>
+(integer) 5</br>
+</font>
+</td></tr></table>
+
+### 2.2.8 给字符数字增/减浮点数
+
+```shell
+# 给key字符串的值增加value(浮点数)
+# 当value为负数时，表示减去
+incrbyfloat key value
+```
+
+<table><tr><td bgcolor="black">
+<font color=white>
+127.0.0.1:6379> incrbyfloat num 2.3</br>
+"4.6"</br>
+</font>
+</td></tr></table>
+
+
+### 2.2.9 setnx
+setnx在设置string的时候，如果key存在则回设置失败，如果key不存在擦灰设置成功。
+<table><tr><td bgcolor="black">
+<font color=white>
+# num存在</br>
+127.0.0.1:6379> setnx num 2</br>
+(integer) 0</br>
+# num1不存在</br>
+127.0.0.1:6379> setnx num1 2</br>
+(integer) 1</br>
+</font>
+</td></tr></table>
+
+
 ---------------------------------------------
 # 3 Hash类型
 ![hash底层存储结构](img/hash底层存储结构.png)

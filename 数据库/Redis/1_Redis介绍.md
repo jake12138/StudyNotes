@@ -2,12 +2,12 @@
 # 1.1 Redis安装
 1. **_下载_**
    ```shell
-   wget http://download.redis.io/releases/redis-4.0.0.tar.gz 
+   wget http://download.redis.io/releases/redis-6.0.0.tar.gz 
    ```
-   下载redis4.0.0的安装包
+   下载redis6.0.0的安装包
 2. 解压
    ```shell
-   tar -xvf redis-4.0.0.tar.gz
+   tar -xvf redis-6.0.0.tar.gz
    ```
 3. 安装
    ```shell
