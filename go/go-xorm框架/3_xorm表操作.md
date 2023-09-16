@@ -202,7 +202,7 @@ engine.SetMapper(mapper)
 type Book struct {
     ID     uint64
     /*生成表后，Name字段在表中的名字就是"FullName"*/
-    Name   string `xorm:"FullName""`
+    Name   string `xorm:"FullName"`
     Author string
     Type   int8
     Price  float32
@@ -473,3 +473,260 @@ effected, err := engine.Update(&user) // 会将整张表更新成user的内容�
 ```
 - Update参数不能是结构体切片或结构体切片指针。
 
+# 4 查询
+## 4.1 查询单条数据
+查询单条数据可以使用xorm.Engine下的`Get`方法：
+```go
+func (engine *Engine) Get(beans ...interface{}) (bool, error)
+```
+**参数:***
+- <font color=blue>beans</font>: 数据库表所对应的结构体的**指针**，查询到的数据信息会存放改这里。如果传入的是结构体类型会报错。
+
+**返回值**
+- <font color=blue>bool: </font> true: 查询到记录
+  false: 没有查询到信息
+- <font color=blue>error: </font>如果查询遇到错误，返回失败的错误；如果查询成功则返回nil。没有查询到对应记录且没有报错也会返回nil
+
+**示例**
+```go
+var b bool
+var err error
+user := User{ID: 1, Name: "jake"}
+b, err = engine.Get(user)
+```
+
+如果传入`Get`方法中的结构体指针对应的结构体没有初始化，可以通过`Id`方法来指定主键的值作为查询条件,如下
+```go
+var b bool
+var err error
+user := User{}
+b, err = engine.ID(1).Get(&user)
+```
+
+**注意**：
+- 通过Get方法查询时，会根据参数user中的非空字段作为查询条件来进行查询，如上例子会以ID=1 AND Name="jake"作为查询条件。
+
+## 4.2 使用Where方法来指定查询条件
+
+```go
+var b bool
+var err error
+user := User{ID: 1, Name: "jake"}
+/*会以personId=1 AND ID=1 AND Name="jake"一起作为查询条件。
+这里的personId=1是指实际数据库中的personId字段的值，
+ID=1 和 Name="jake"是指User结构体中ID和Name字段对应数据库表中的字段的值*/
+b, err := engine.Where("personId=1").Get(&user)
+```
+
+`Where`方法还可以使用？作为占位符.
+```go
+user := User{}
+id := 1
+name := "jake"
+b, err := engine.Where("personId=? AND personName=?", id, name).Get(&user)
+```
+
+## 4.3 查询多条数据
+查询多条数据使用**Find**方法，Find方法的第一个参数只能为**slice的指针**或**Map指针**。第二个参数可选，为查询的条件struct的指针或struct。
+```go
+func (session *Session) Find(rowsSlicePtr interface{}, condiBean ...interface{}) error
+```
+
+1. 传入Slice用于返回数据:
+```go
+user := []User{}
+/*这回查询所有信息，相当于`select * from <table>`*/
+err := engine.Find(&user)
+
+user1 := make([]User, 0)
+err = engine.Where("personId > ?", 1).Find(&user1)
+
+user := make([]*User, 0)
+err := engine.Find(&user, User{ID: 2})
+
+
+/*如果只选择单个字段，也可使用非结构体的Slice*/
+ints := make([]int, 0)
+// 查找Person表下的全部personAge字段的值
+err := engine.Table("Person").Cols("personAge").Find(&ints)
+```
+
+2. 传入Map用户返回数据，map必须为map[int64]Userinfo的形式，map的key为id，因此对于复合主键无法使用这种方式。
+```go
+users := make(map[int64]User)
+err := engine.Find(&users)
+
+users := make(map[int64]*User)
+err := engine.Find(&users)
+```
+
+## 4.4 统计记录的个数
+统计数据使用Count方法，Count方法的参数为struct或者struct的指针并且成为查询条件。
+```go
+func (engine *Engine) Count(bean ...interface{}) (int64, error)
+```
+**参数**
+<font color=blue>bean</font>: 查询条件的Struct(指针)。
+**返回值**
+- <font color=blue>int64</font>: 满足条件的记录的个数
+- <font color=blue>error</font>: 报错信息
+
+**示例**
+```go
+// 计算ID=1的记录有多少条
+user := User{ID: 1}
+num, err := engine.Count(user)
+```
+
+## 4.5 Exist系列方法
+```go
+func (engine *Engine) Exist(bean ...interface{}) (bool, error)
+```
+**参数**
+<font color=blue>bean</font>: 结构体指针，如果传入结构体会报错。
+**返回值**
+- <font color=blue>bool</font>: true:存在； false:部存在
+- <font color=blue>error</font>: 没有报错则返回nil
+
+
+**示例1：查看是否有对应的记录**：
+```go
+user := User{ID: 11}
+var isExist bool
+isExist, err := engine.Exist(&user)
+```
+
+**示例2：查看对应的表是否存在**：
+```go
+// 检查Person表是否存在，如果不存在err返回不为nil
+isExist, err := engine.Table("Person").Exist()
+```
+
+## 4.6 对查询到个每条记录执行操作
+```go
+func ShowName(idx int, bean interface{}) error {
+	/*这里转化的类型是main函数中声明user的指针类型*/
+    user := bean.(*User)
+	fmt.Printf("the %d person's name is%s\n", idx, user.Name)
+	return nil
+}
+
+func main() {
+	engine.ShowSQL(true)
+    /*查询到的每一条记录都会赋值给user然后传入ShowName函数中执行，
+    当Iterate函数执行完后从，将user设置成传入Iterate之前的状态。
+    如果user的字段不为空，还会将不为空的字段作为查询条件*/
+	user := User{}
+	err := engine.Where("personAge > ?", 10).Iterate(&user, ShowName)
+	if err != nil {
+		fmt.Println("query failed with:", err.Error())
+	}
+}
+```
+
+## 4.7 join方法
+```go
+func (engine *Engine) Join(joinOperator string, tablename interface{}, condition interface{}, args ...interface{}) *Session
+```
+**参数**
+- <font color=blue>joinOperator</font>:连接类型，当前支持INNER, LEFT OUTER, CROSS中的一个值
+- <font color=blue>tablename</font>:string类型的表名，表对应的结构体指针或者为两个值的[]string，表示表名和别名
+- <font color=blue>args</font>:连接条件
+
+**返回值**
+*Session ： Session，说明Join后面还可继续操作
+
+**示例**
+```go
+/*数据库中没有UserBook对应的表，但有User和Book对应的表*/ 
+type UserBook struct {
+    User `xorm:"extends"`
+    Book `xorm:"extends"`
+}
+
+func main() {
+    engine.ShowSQL(true)
+    userBook := []UserBook{}
+    /*将Book和Person表中满足Where条件的记录拼接起来放到UserBook结构体中*/
+    err := engine.Table("Person").Join("INNER", "Book", "Book.author=Person.personName").Find(&userBook)
+
+    // 也可以使用Sql来代替
+    //结构体中extends标记对应的结构顺序应和最终生成SQL中对应的表出现的顺序相同。
+    //err := engine.SQL("select Person.*,Book.* FROM Person,Book WHERE Person.personName=Book.author").Find(&userBook)
+    if err != nil {
+        fmt.Print("error:", err.Error())
+    } else {
+        fmt.Println("user=", userBook)
+    }
+}
+```
+
+当然，如果表名字太长，我们可以使用别名：
+```go
+engine.Table("user").Alias("u").
+	Join("INNER", []string{"group", "g"}, "g.id = u.group_id").
+	Join("INNER", "type", "type.id = u.type_id").
+	Where("u.name like ?", "%"+name+"%").Find(&users, &User{Name:name})
+```
+
+**拓展**
+Join方法后面还可继续接Join来联合多表一起查询
+
+## 4.8 Rows方法 
+Rows方法和Iterate方法类似，提供逐条执行查询到的记录的方法，不过Rows更加灵活好用。
+
+```go
+user := new(User)
+rows, err := engine.Where("id >?", 1).Rows(user)
+if err != nil {
+}
+defer rows.Close()
+for rows.Next() {
+    err = rows.Scan(user)
+    //...对user记录进行操作
+}
+```
+
+**注意**
+- Rows的参数只能是**结构体指针**
+
+## 4.9 Sum系列方法
+ 
+求和数据可以使用Sum, SumInt, Sums 和 SumsInt 四个方法，Sums系列方法的参数为struct的指针并且成为查询条件。
+```go
+Sum 求某个字段的和，返回float64
+type SumStruct struct {
+    Id int64
+    Money int
+    Rate float32
+}
+
+ss := new(SumStruct)
+total, err := engine.Where("id >?", 1).Sum(ss, "money")
+fmt.Printf("money is %d", int(total))
+```
+SumInt 求某个字段的和，返回int64
+```go
+type SumStruct struct {
+    Id int64
+    Money int
+    Rate float32
+}
+
+ss := new(SumStruct)
+total, err := engine.Where("id >?", 1).SumInt(ss, "money")
+fmt.Printf("money is %d", total)
+```
+
+Sums 求某几个字段的和， 返回float64的Slice
+```go
+ss := new(SumStruct)
+totals, err := engine.Where("id >?", 1).Sums(ss, "money", "rate")
+
+fmt.Printf("money is %d, rate is %.2f", int(total[0]), total[1])
+SumsInt 求某几个字段的和， 返回int64的Slice
+ss := new(SumStruct)
+totals, err := engine.Where("id >?", 1).SumsInt(ss, "money")
+
+fmt.Printf("money is %d", total[0])
+```

@@ -3,9 +3,9 @@
 - 下载对应的go版本
 https://golang.google.cn/doc
 
-- 解压到/usr/bin下
+- 解压到/usr/local下
     ```shell
-    tar -C /usr/local/ -xzf go1.18.1.linux-amd64.tar.gz
+    sudo tar -C /usr/local/ -xzf go1.18.1.linux-amd64.tar.gz
     ```
 - 配置环境变量
     ```shell
@@ -24,6 +24,9 @@ https://golang.google.cn/doc
     go env -w GO111MODULE=on
     # 更改下载源的代理
     go env -w GOPROXY=https://goproxy.io,direct
+
+    # 阿里云镜像
+    go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
 
     # 原始为 GOPROXY="https://proxy.golang.org,direct"
     ```
@@ -206,7 +209,9 @@ func main() {
 进入目录，运行 go mod init + 模块名称
 go build 或者 go run 一次
 
-
+# 7 goland环境配置
+- 在file/setting/Go Modules下将GOPROXY配置成`go env`中的一致。
+![](img/goland_1.png)
 
 
 

@@ -1,21 +1,18 @@
-# 2 搭建xorm环境
+# 1 搭建xorm环境
 1. 下载xorm
     ```shell
-    # go1.17之后的版本使用go install安装
-    # @latest表示下载最新版本，也可以通过@指定版本
-    go install xorm.io/xorm@latest
-
-    # go1.17版本之前使用go get
+    # go get只能在工程目录下使用才有效
     go get xorm.io/xorm
     ```
+
+    注意：使用
+    go install xorm.io/xorm@latest
+    会报错go install github.com/go-sql-driver/mysql@latest.因为go linstall会默认生成一个可执行程序，但这个包没有main函数，因此报错
 2. 安装mysql驱动
     ```shell
-    # go1.17之后的版本使用go install安装
-    go install github.com/go-sql-driver/mysql@latest
-
-    # go1.17版本之前使用go get
     go get github.com/go-sql-driver/mysql
     ```
+    注意：使用go install github.com/go-sql-driver/mysql@latest会报错go install github.com/go-sql-driver/mysql@latest.因为go linstall会默认生成一个可执行程序，但这个包没有main函数，因此报错
 3. 给系统安装mysql
     如果已经安装过MySQL可以跳过
     1） 安装mysql服务
@@ -119,6 +116,7 @@ grant all privileges on *.* to 'root'@'%' with grant option;
 flush privileges;
 16） 退出mysql并重启mysql
 
+# 2 配置goland
 
     
     
