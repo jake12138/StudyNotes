@@ -2,9 +2,10 @@
 
 
 
-
-# 1 设置string
+# 1 string操作命令
+## 1.1 set
 ```go
+redis的v8版本
 func (c cmdable) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *StatusCmd
 ```
 **参数：**
@@ -17,18 +18,29 @@ func (c cmdable) Set(ctx context.Context, key string, value interface{}, expirat
 
 **示例**：
 ```go
-defer redisClient.Close()
-ctx := context.Background()
-var status *redis.StatusCmd
-status = redisClient.Set(ctx, "name", 99, 10*time.Second)
-//
-str, err := status.Result()
-if err != nil {
-    fmt.Println("cmd set failed:", err.Error())
-} else {
-    /*status.Result()返回的第一个参数就是status.Val()*/
-    fmt.Println("str=", str) // OK
-    fmt.Println("value=", status.Val()) // OK
+import (
+	"context"
+	"fmt"
+	"github.com/go-redis/redis/v8"
+)
+
+...
+
+func main(){
+    defer redisClient.Close()
+    ctx := context.Background()
+    var status *redis.StatusCmd
+    /*设置name为99，时效性为10秒*/
+    status = redisClient.Set(ctx, "name", 99, 10*time.Second)
+    
+    str, err := status.Result()
+    if err != nil {
+        fmt.Println("cmd set failed:", err.Error())
+    } else {
+        /*status.Result()返回的第一个参数就是status.Val()*/
+        fmt.Println("str=", str) // OK
+        fmt.Println("value=", status.Val()) // OK
+    }
 }
 ```
 
@@ -40,13 +52,13 @@ func (cmd *baseCmd) Name() string
 /*返回执行的redis命令*/
 func (cmd *baseCmd) Args() []interface{}
 
-
 ```
 
 # 3 redis.StatusCmd的方法
+redis.StatusCmd继承自redis.baseCmd，因此redis.baseCmd的方法redis.StatusCmd都有。
 ```go
 /* 返回redis命令的执行结果 
-string: OK:执行成功
+string: 返回对应redis命令的输出结果
 error:  错误信息*/
 func (cmd *StatusCmd) Result() (string, error)
 

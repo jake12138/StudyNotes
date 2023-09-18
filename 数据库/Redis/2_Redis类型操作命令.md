@@ -1,6 +1,6 @@
 [toc]
 # 1 Redis类型分类
-Redis的类型分为string、hash、list、set、sorted_set六种基本类型。此外还有一些高级类型像Bitmaps、HyperLogLog、GEO.
+Redis的类型分为string、hash、list、set、sorted_set五种基本类型。此外还有一些高级类型像Bitmaps、HyperLogLog、GEO.
 **string**: 存储字符串的key-value键值对。
 ![string底层存储结构](img/string底层存储结构.png)
 **hash**：key对应的不再是一个value, 而是一个数据结构。即一个key中保存了多对键值对数据。底层使用哈希表结构实现数据存储。
