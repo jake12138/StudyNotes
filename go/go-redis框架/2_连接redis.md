@@ -6,6 +6,7 @@ package main
 import (
     "fmt"
     "github.com/go-redis/redis/v8"
+    "context"
 )
 func main() {
     // 连接redis
@@ -15,7 +16,7 @@ func main() {
         DB:       0,
     })
     // 检查是否连接上redis服务器
-    str, err := redisClient.Ping().Result()
+    str, err := redisClient.Ping(context.Background()).Result()
     if err != nil {
         panic(err)
     }
