@@ -38,6 +38,10 @@ https://golang.google.cn/doc
 
 # 3 更换go版本
 将/usr/local/go下的文件全部删除，然后重新配置即可
+```shell
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.18.1.linux-amd64.tar.gz
+```
 
 # 4 go 介绍
 **特性**

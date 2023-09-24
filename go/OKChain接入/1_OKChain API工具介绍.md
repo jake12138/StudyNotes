@@ -8,6 +8,12 @@ https://www.delicacydaily.com/cn/oktc
 
 开发指南：
 https://www.delicacydaily.com/cn/oktc/docs/dev/quick-start/overview
+https://www.ouxyi.club/cn/oktc/docs/dev/quick-start/overview
+https://www.denbiao.com/cn/oktc/docs/dev/quick-start/overview
+
+
+<font color=red>注意</font>
+- https://www.okex.me/  网址不可信
 
 git获取
 git clone -b mainnet https://github.com/okx/exchain
@@ -42,7 +48,29 @@ exchaind version --long
 exchaincli version --long
 ```
 
+# 3 安装go开发工具包
+```shell
+go get github.com/okx/exchain-go-sdk
+```
+**注意**：
+- 执行命令后可能提示
+<table><tr><td bgcolor=black>
+<font color= white>
+go: github.com/okx/exchain-go-sdk@v1.5.6: parsing go.mod:</br>
+module declares its path as: github.com/okex/exchain-go-sdk</br>
+but was required as: github.com/okx/exchain-go-sdk</br>
+</font>
+</td></tr></table>
+需要在go.mod中添加
+```go
+
+```
+
 # 3 概念和名词
 
 - **TPS**： 每秒交易单数
 - **Dpos**： 委托权益证明
+
+
+# API接口文档地址
+https://www.delicacydaily.com/cn/oktc/docs/dev/api/oktc-api/http
