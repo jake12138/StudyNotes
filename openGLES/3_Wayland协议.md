@@ -116,3 +116,27 @@ wl_egl_window_create(struct wl_surface *surface,
 - **<font color="green">surface</font>**: 由wl_compositor_create_surface创建
 - **<font color="green">width</font>**: 窗口的宽
 - **<font color="green">height</font>**: 窗口的高
+
+# 3 wayland操作
+## 3.1 获取鼠标点击事件(待确认)
+要使用 Wayland 提供的 API 获取鼠标点击事件，您需要使用 Wayland 协议定义的接口和事件。下面是使用 Wayland API 获取鼠标点击事件的一般步骤：
+
+1. **创建连接**：使用 `wl_display_connect` 函数建立与 Wayland 服务器的连接。这将返回一个 `wl_display` 对象，它表示与 Wayland 服务器的通信。
+
+2. **获取 registry**：使用 `wl_display_get_registry` 函数从 `wl_display` 对象获取 `wl_registry` 对象。`wl_registry` 是 Wayland 协议的注册表，用于管理和获取各种全局对象。
+
+3. **监听 registry 全局对象**：使用 `wl_registry_add_listener` 函数注册一个监听器，以便在全局对象可用时进行通知。
+
+4. **处理 registry 全局对象**：实现监听器中的回调方法，例如 `registry_global` 和 `registry_global_remove` 方法。在 `registry_global` 方法中，您可以识别和获取所需的全局对象，如 `wl_seat` 对象（表示输入设备）。
+
+5. **获取输入设备**：使用 `wl_registry_bind` 函数从 `wl_registry` 获取 `wl_seat` 对象。您可以通过显示名称或 ID 来选择合适的 `wl_seat` 对象。
+
+6. **监听输入设备**：使用 `wl_seat_add_listener` 函数注册一个监听器，以便在输入设备事件发生时进行通知。
+
+7. **处理输入设备事件**：实现监听器中的回调方法，例如 `seat_handle_capabilities` 和 `seat_handle_pointer` 方法。在 `seat_handle_capabilities` 方法中，您可以检查输入设备的功能，并在其中包含鼠标功能时注册鼠标事件监听器。
+
+8. **监听鼠标事件**：使用 `wl_pointer_add_listener` 函数注册一个鼠标事件监听器。
+
+9. **处理鼠标事件**：实现鼠标事件监听器中的回调方法，例如 `pointer_handle_button` 方法。在这些回调方法中，您可以处理鼠标点击事件并执行相应的操作。
+
+通过以上步骤，您就可以使用 Wayland 提供的 API 获取鼠标点击事件了。具体的代码实现将涉及到更多的细节和方式，因此您需要参考 Wayland 的 API 文档和示例代码以获得更多的指导和使用方法。
