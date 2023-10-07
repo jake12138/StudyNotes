@@ -79,6 +79,8 @@ golang 提供了 go mod命令来管理包。go mod 有以下命令：
 |go mod tidy|删除不需要的依赖包、下载新的依赖包、更新go.sum|
 |go mod init|在当前目录初始化mod|
 |go mod why|解释为什么需要依赖|
+|go clean -modcache|清楚所有go缓存，包括go get下载的库|
+|go list -m -versions xxx包名|查看指定包的可下载版本|
 
 ## 6.2 设置使用mod来管理
 1. 首先将go的版本升级为1.11以上
