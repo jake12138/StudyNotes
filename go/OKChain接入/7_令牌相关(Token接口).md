@@ -201,7 +201,7 @@ func TestRun1() {
 
 - <font color=red>not allowed original symbol: not allowed original symbol: xxx</font>: 发行代币的时候，名称命名不符合规范。
 
-# 4 发送
+# 4 给单个账户转账
 ```go
 type TokenTx interface {
     Send(fromInfo keys.Info, passWd, toAddrStr, coinsStr, memo string, accNum, seqNum uint64) (sdk.TxResponse, error)
@@ -260,4 +260,213 @@ send response: Response:
   GasWanted: 98138
   GasUsed: 81231
 */
+```
+
+# 5 同时给多个账户转账
+```go
+type TokenTx interface {
+    // 给一个指定账户转账
+	Send(fromInfo keys.Info, passWd, toAddrStr, coinsStr, memo string, accNum, seqNum uint64) (sdk.TxResponse, error)
+
+    // 同时给多个账户转账
+	MultiSend(fromInfo keys.Info, passWd string, transfers []types.TransferUnit, memo string, accNum, seqNum uint64) (
+		sdk.TxResponse, error)
+}
+```
+**参数**：
+|参数名称|参数类型|描述|
+|-------|--------|----|
+|fromInfo|keys.Info|公密钥相关信息|
+|passWd|string|创建账户时设置的密码|
+|transfers|[]types.TransferUnit|转账相关信息|
+|meno|string|转账的备注|
+|accNum|uint64|发送方的账户号码|
+|seqNum|uint64|发送方的账户序列号|
+
+**代码示例**：
+```go
+package mytest
+
+import (
+    "fmt"
+    sdk "github.com/okex/exchain-go-sdk"
+    "github.com/okex/exchain-go-sdk/utils"
+    "log"
+)
+
+const (
+    // TODO: link to mainnet of ExChain later
+    rpcURL = "https://exchaintesttmrpc.okex.org"
+    // user's name
+    name = "alice"
+    // user's mnemonic
+    //mnemonic = "giggle sibling fun arrow elevator spoon blood grocery laugh tortoise culture tool"
+    mnemonic = "expire lesson shoot glory double spirit enhance prison flip agree spawn model"
+    // user's password
+    passWd = "Jake123"
+    
+    baseCoin = "okt"
+)
+
+func TestRun1() {
+    config, err := sdk.NewClientConfig(rpcURL, "exchain-65", sdk.BroadcastBlock, "0.001okt", 98138,
+        0, "")
+    if err != nil {
+        log.Fatal(err)
+    }
+    client := sdk.NewClient(config)
+
+    // 使用给定的名称和密码创建账户信息
+    info, _, err := utils.CreateAccountWithMnemo(mnemonic, name, passWd)
+    if err != nil {
+        fmt.Printf("create account failed:%s\n", err.Error())
+        panic("create account failed!")
+    }
+
+    account, err := client.Auth().QueryAccount(info.GetAddress().String())
+
+    transferUit, err := utils.ParseTransfersStr("0xC3C250CD18AC910BE1E7898693968829224AF6B8 0.01okt")
+    if err != nil {
+        log.Fatal("parse transfer failed:", err.Error())
+    }
+
+    tx_res, err := client.Token().MultiSend(info, "Jake123", transferUit, "transfer test", account.GetAccountNumber(), account.GetSequence())
+    if err != nil {
+        log.Fatal("multi send failed:", err.Error())
+    }
+    fmt.Println("multiSend res:", tx_res)
+}
+```
+
+# 6 增加发行令牌的总量
+```go
+type TokenTx interface{
+    ...
+    Mint(fromInfo keys.Info, passWd, coinsStr, memo string, accNum, seqNum uint64) (sdk.TxResponse, error)
+    ...
+```
+**作用**:
+增发一定数量的令牌
+**参数**：
+- <font color=red>fromInfo</font>:增大令牌的账户信息
+- <font color=red>passWd</font>: 账户密码（创建账户时自定义）
+- <font color=red>coinsStr</font>:增发的令牌信息，格式为"<增发数量> 令牌符号"，例如"1000 okt"表示增发1000枚okt
+- <font color=red>memo</font>：增发令牌的备注信息
+- <font color=red>accNum</font>：账户号
+- <font color=red>seqNum</font>：交易序列号
+
+**示例**：
+```go
+package mytest
+
+import (
+	"fmt"
+	sdk "github.com/okex/exchain-go-sdk"
+	"github.com/okex/exchain-go-sdk/types"
+	"github.com/okex/exchain-go-sdk/utils"
+	"log"
+)
+
+const (
+	// TODO: link to mainnet of ExChain later
+	rpcURL2 = "https://exchaintesttmrpc.okex.org"
+)
+
+var err error
+var clientConfig types.ClientConfig
+var client sdk.Client
+
+func init() {
+	clientConfig, err = sdk.NewClientConfig(rpcURL2, "exchain-65", sdk.BroadcastBlock,
+		"0.0001okt", 177138, 0.1, "")
+	if err != nil {
+		log.Fatal("NewClientConfig failed:", err.Error())
+	}
+
+	client = sdk.NewClient(clientConfig)
+}
+
+func TestRun2() {
+	mnemonic := "charge caution name brain crowd summer angry legal fence champion month yellow"
+
+	// 从助记符生成账户
+	keyInfo, mnemo, err := utils.CreateAccountWithMnemo(mnemonic, "jake", "Jake123")
+	if err != nil {
+		log.Fatal("create account from mnemo failed", err.Error())
+	}
+	fmt.Println("mno=", mnemo)
+
+    // 获取账户信息
+	account, err := client.Auth().QueryAccount(keyInfo.GetAddress().String())
+	if err != nil {
+		log.Fatal("query account failed:", err.Error())
+	}
+
+	// 增发令牌
+	res, err := client.Token().Mint(keyInfo, "Jake123", "1 jjk",
+		"test issue", account.GetAccountNumber(), account.GetSequence())
+	if err != nil {
+		log.Fatal("incr token failed:", err.Error())
+	}
+	fmt.Println(res)
+}
+```
+
+# 7 减少发行的令牌总量
+```go
+type TokenTx interface {
+    ...
+    Burn(fromInfo keys.Info, passWd, coinsStr, memo string, accNum, seqNum uint64) (sdk.TxResponse, error)
+    ...
+}
+```
+**参数**:
+- <font color=red>fromInfo</font>: 减少发行令牌的账户信息，只有令牌的所有者账户才有权利进行减少发行量
+- <font color=red>passWd</font>: 账户密码
+- <font color=red>coinsStr</font>: 减少的令牌数量，格式为"<减少数量> 令牌符号"，例如"1000 okt"表示减少1000枚okt
+- <font color=red>memo</font>：增发令牌的备注信息
+- <font color=red>accNum</font>：账户号
+- <font color=red>seqNum</font>：交易序列号
+
+**示例**:
+```go
+txResponse, err := client.Token().Burn(keyInfo, "Jake123", "100 jjk",
+		"dec", account.GetAccountNumber(), account.GetSequence())
+if err != nil {
+	fmt.Println("Burn token failed:", err.Error())
+}
+```
+
+# 8 修改令牌信息
+```go
+type TokenTx interface {
+    Edit(fromInfo keys.Info, passWd, symbol, description, wholeName, memo string, isDescEdit, isWholeNameEdit bool, accNum,
+         seqNum uint64) (sdk.TxResponse, error)
+}
+```
+**作用**：
+它用来编辑已经在OKExChain上发行的令牌的信息。可以用于修改令牌的符号、全称、描述信息
+**参数**：
+- <font color=red>fromInfo<font>: 令牌所有者的信息
+- <font color=red>passWd<font>: 账户密码
+- <font color=red>symbol<font>: 需要修改的令牌的符号
+- <font color=red>description<font>: 修改后的新的描述信息。
+- <font color=red>wholeName<font>: 令牌修改新的全称。
+- <font color=red>memo<font>: 备注信息
+- <font color=red>isDescEdit<font>:是否更改描述信息
+- <font color=red>isWholeNameEdit<font>: 是否更改全称
+- <font color=red>accNum<font>: 操作者账号的账户编号。
+- <font color=red>seqNum<font>:账号的序列号。
+
+**示例代码**:
+```go
+txResponse, err := client.Token().Edit(keyInfo, "Jake123", "jjk",
+		"jjk coins", "jakejake",
+		"change in 2023-11-04", true, true,
+		account.GetAccountNumber(), account.GetSequence())
+if err != nil {
+	log.Fatal("edit token failed:", err.Error())
+} else {
+	fmt.Println("txResponse=", txResponse)
+}
 ```
